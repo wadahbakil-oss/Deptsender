@@ -22,6 +22,7 @@
         .pharmacy-name h2 { color: #1e5799; }
         label { display: block; margin-bottom: 8px; font-weight: bold; }
         select { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; }
         .file-input { padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 10px; text-align: center; margin-bottom: 15px; }
         .file-input small { display: block; margin-top: 5px; color: #666; font-size: 11px; }
         .info-card { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border-right: 4px solid #2b8c5e; }
@@ -37,13 +38,20 @@
         .btn-sms { background: #2196F3; color: white; }
         .btn-process { background: #2b8c5e; color: white; width: 100%; margin-top: 10px; }
         .btn-process:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-update { background: #17a2b8; color: white; width: 100%; margin-top: 10px; }
         .btn-reset { background: #6c757d; color: white; width: 100%; margin-top: 10px; }
+        .btn-add { background: #FF9800; color: white; width: 100%; margin-top: 10px; }
+        .edit-section { background: #e3f2fd; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-row input { flex: 1; margin-bottom: 0; }
         .info-note { background: #FFF3E0; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; }
         .success-msg { background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 12px; text-align: center; white-space: pre-line; }
         .error-msg { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; }
+        .warning-msg { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; }
         .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
         .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2b8c5e; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 10px; vertical-align: middle; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .empty-state { text-align: center; padding: 30px; color: #999; }
     </style>
 </head>
 <body>
@@ -72,68 +80,40 @@
                 🔄 معالجة الملفين وتحديث البيانات
             </button>
             
+            <button class="btn-add" onclick="downloadBackup()">
+                💾 تحميل نسخة احتياطية من البيانات
+            </button>
+            
             <div id="uploadStatus"></div>
         </div>
         
-        <div class="card">
+        <div class="card" id="customersCard">
             <div class="card-title">👥 العملاء والحركة اليومية</div>
             
-            <label>اختر العميل</label>
-            <select id="customerSelect"></select>
-            
-            <div class="info-card" id="customerInfo">
-                <div class="info-row">
-                    <span class="info-label">🟡 فاتورة جديدة (مدين):</span>
-                    <span class="info-value debt" id="debtAmount">0 ريال</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">🟢 سداد (دائن):</span>
-                    <span class="info-value paid" id="paidAmount">0 ريال</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">📊 إجمالي الرصيد الكلي:</span>
-                    <span class="info-value total" id="totalDebtAmount">0 ريال</span>
-                </div>
+            <div id="customersContent">
+                <!-- سيتم تعبئته بالعملاء أو رسالة فارغة -->
             </div>
-            
-            <div class="button-group">
-                <button class="btn-whatsapp" onclick="sendViaWhatsApp()">📱 إرسال عبر واتساب</button>
-                <button class="btn-sms" onclick="sendViaSMS()">✉️ إرسال عبر رسالة نصية</button>
-            </div>
-            
-            <button class="btn-reset" onclick="resetMovements()">🔄 إعادة تعيين الحركة اليومية</button>
             
             <div class="info-note">
                 📌 الملف الأول: العمود الأخير = حركة اليوم (موجب=فاتورة جديدة، سالب=سداد)<br>
                 📌 الملف الثاني: العمود الأخير = إجمالي الرصيد الكلي<br>
-                📌 بعد معالجة الملفين، اختر عميل ثم اضغط إرسال
+                📌 يمكنك تعديل الفاتورة الجديدة أو السداد يدوياً من الأسفل<br>
+                📌 بعد التعديل، اضغط "تحديث حركة العميل" ثم "إرسال"
             </div>
         </div>
         
-        <div class="footer">نظام مرسل الديون | صيدلية العابد v10.0</div>
+        <div class="footer">نظام مرسل الديون | صيدلية العابد v11.0</div>
     </div>
 
     <script>
         // ========================================
-        // قاعدة بيانات العملاء (الأسماء وأرقام الهواتف ثابتة مسبقاً)
+        // قاعدة بيانات العملاء (تبدأ فارغة تماماً)
         // ========================================
-        let customers = [
-            { id: 6, name: "عبدالله المروسي", phone: "711258371", debt: 0, paid: 0, totalDebt: 435340.07 },
-            { id: 12, name: "عبدالله الحكيمي", phone: "735574604", debt: 0, paid: 0, totalDebt: 2950.20 },
-            { id: 51, name: "ناصر العتمي", phone: "736379838", debt: 0, paid: 0, totalDebt: 22886.00 },
-            { id: 63, name: "وليد الزماني", phone: "777614827", debt: 0, paid: 0, totalDebt: 12875.40 },
-            { id: 93, name: "عبدالله شيبان", phone: "777458368", debt: 0, paid: 0, totalDebt: 184755.11 },
-            { id: 110, name: "حسن الطباخ", phone: "770370211", debt: 0, paid: 0, totalDebt: 8810.00 },
-            { id: 146, name: "لطف محمد قاسم", phone: "777206743", debt: 0, paid: 0, totalDebt: 98044.21 },
-            { id: 228, name: "ام براءه", phone: "735718544", debt: 0, paid: 0, totalDebt: 7468.98 },
-            { id: 311, name: "ام محمد ضمانة اختيار", phone: "774923011", debt: 0, paid: 0, totalDebt: 19892.00 },
-            { id: 315, name: "محمد نجيب صاحب البطاط", phone: "733736264", debt: 0, paid: 0, totalDebt: 69002.00 },
-            { id: 322, name: "مروان سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 200.00 }
-        ];
+        let customers = [];
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // دالة للتحقق من أرقام الهواتف (لتجاهلها)
+        // دوال التحقق من أرقام الهواتف
         function isPhoneNumber(num) {
             const numStr = Math.round(num).toString();
             return (numStr.length === 9) && 
@@ -142,23 +122,20 @@
 
         // استخراج العمود الأخير من السطر
         function extractLastColumnNumber(line, customerId, customerName) {
-            // استخراج جميع الأرقام من السطر
             const numbers = [];
-            const regex = /(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)/g;
+            const regex = /(-?\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)/g;
             let match;
             while ((match = regex.exec(line)) !== null) {
                 const num = parseFloat(match[0].replace(/,/g, ''));
                 if (!isNaN(num)) numbers.push(num);
             }
             
-            // تصفية أرقام الهواتف
             const filteredNumbers = numbers.filter(num => {
-                if (num < 0.01) return false;
-                if (isPhoneNumber(num)) return false;
+                if (Math.abs(num) < 0.01) return false;
+                if (isPhoneNumber(Math.abs(num))) return false;
                 return true;
             });
             
-            // العمود الأخير هو آخر رقم
             if (filteredNumbers.length > 0) {
                 return filteredNumbers[filteredNumbers.length - 1];
             }
@@ -178,36 +155,31 @@
                 }
                 
                 const lines = fullText.split('\n');
-                const results = new Map(); // customerId -> { movement, balance }
+                const results = new Map();
                 
                 for (let line of lines) {
-                    // البحث عن رقم العميل (ID من 1 إلى 999)
                     const idMatch = line.match(/\b([1-9][0-9]{0,2})\b/);
                     if (!idMatch) continue;
                     
                     const customerId = parseInt(idMatch[1]);
                     if (customerId < 1 || customerId > 999) continue;
                     
-                    // البحث عن اسم العميل في قاعدة البيانات
-                    const customer = customers.find(c => c.id === customerId);
-                    if (!customer) continue;
+                    const nameMatch = line.match(/[أ-ي][أ-ي\s]{2,20}[أ-ي]/);
+                    let customerName = nameMatch ? nameMatch[0].trim() : "";
                     
-                    // استخراج آخر رقم في السطر
-                    const lastNumber = extractLastColumnNumber(line, customerId, customer.name);
+                    const lastNumber = extractLastColumnNumber(line, customerId, customerName);
                     
                     if (lastNumber !== 0) {
                         if (isBalanceSheet) {
-                            // الملف الثاني: تخزين الرصيد الكلي
-                            results.set(customerId, { balance: lastNumber });
+                            results.set(customerId, { balance: Math.abs(lastNumber) });
                         } else {
-                            // الملف الأول: تخزين الحركة (موجب = فاتورة، سالب = سداد)
                             let debt = 0, paid = 0;
                             if (lastNumber > 0) {
-                                debt = lastNumber; // فاتورة جديدة
+                                debt = lastNumber;
                             } else if (lastNumber < 0) {
-                                paid = Math.abs(lastNumber); // سداد
+                                paid = Math.abs(lastNumber);
                             }
-                            results.set(customerId, { debt, paid });
+                            results.set(customerId, { debt, paid, name: customerName });
                         }
                     }
                 }
@@ -234,7 +206,6 @@
             
             statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الأول...</div>';
             
-            // قراءة الملف الأول (الحركة اليومية)
             const dailyResults = await extractDataFromPDF(dailyFile, false);
             if (!dailyResults) {
                 statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الأول</div>';
@@ -244,7 +215,6 @@
             
             statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الثاني...</div>';
             
-            // قراءة الملف الثاني (كشف الحساب)
             const balanceResults = await extractDataFromPDF(balanceFile, true);
             if (!balanceResults) {
                 statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الثاني</div>';
@@ -252,102 +222,201 @@
                 return;
             }
             
-            statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري تحديث البيانات...</div>';
+            statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري دمج البيانات...</div>';
             
-            let updatedMovements = 0;
-            let updatedBalances = 0;
-            let details = [];
+            // إنشاء قائمة العملاء من الملفين
+            const customersMap = new Map();
             
-            // تحديث العملاء
+            // إضافة العملاء من الملف الأول مع أسمائهم
+            for (let [id, data] of dailyResults) {
+                customersMap.set(id, {
+                    id: id,
+                    name: data.name || `عميل ${id}`,
+                    phone: "",
+                    debt: data.debt || 0,
+                    paid: data.paid || 0,
+                    totalDebt: 0
+                });
+            }
+            
+            // إضافة العملاء من الملف الثاني وتحديث الأرصدة
+            for (let [id, data] of balanceResults) {
+                if (customersMap.has(id)) {
+                    customersMap.get(id).totalDebt = data.balance;
+                } else {
+                    customersMap.set(id, {
+                        id: id,
+                        name: `عميل ${id}`,
+                        phone: "",
+                        debt: 0,
+                        paid: 0,
+                        totalDebt: data.balance
+                    });
+                }
+            }
+            
+            customers = Array.from(customersMap.values());
+            
+            // طلب أرقام الهواتف للعملاء الجدد
             for (let customer of customers) {
-                // تحديث الحركة اليومية من الملف الأول
-                const dailyData = dailyResults.get(customer.id);
-                if (dailyData) {
-                    if (dailyData.debt > 0 || dailyData.paid > 0) {
-                        customer.debt = dailyData.debt;
-                        customer.paid = dailyData.paid;
-                        updatedMovements++;
-                        details.push(`${customer.name}: فاتورة=${dailyData.debt}, سداد=${dailyData.paid}`);
+                if (!customer.phone || customer.phone === "") {
+                    const phone = prompt(`📞 أدخل رقم هاتف العميل: ${customer.name}\n(مثال: 77XXXXXXX)`);
+                    if (phone) {
+                        customer.phone = phone.replace(/[^0-9]/g, '');
                     }
                 }
-                
-                // تحديث الرصيد الكلي من الملف الثاني
-                const balanceData = balanceResults.get(customer.id);
-                if (balanceData && balanceData.balance > 0 && balanceData.balance !== customer.totalDebt) {
-                    customer.totalDebt = balanceData.balance;
-                    updatedBalances++;
-                    details.push(`${customer.name}: رصيد كلي=${balanceData.balance.toLocaleString()}`);
-                }
             }
             
-            // حفظ البيانات
-            localStorage.setItem('alabed_customers_v10', JSON.stringify(customers));
-            updateCustomerList();
+            saveCustomers();
+            renderCustomersList();
             
-            let msg = `✅ تم معالجة الملفين بنجاح!\n`;
-            msg += `📊 حركة يومية: ${updatedMovements} عميل\n`;
-            msg += `💰 أرصدة كلية: ${updatedBalances} عميل`;
-            if (details.length > 0) {
-                msg += `\n📝 التفاصيل:\n${details.join('\n')}`;
-            }
+            let msg = `✅ تم تحميل ${customers.length} عميل بنجاح!\n`;
+            msg += `📊 حركة يومية محدثة\n💰 أرصدة كلية محدثة`;
             
             statusDiv.innerHTML = `<div class="success-msg">${msg.replace(/\n/g, '<br>')}</div>`;
             processBtn.disabled = false;
             
             setTimeout(() => {
                 statusDiv.innerHTML = '';
-            }, 10000);
+            }, 5000);
+        }
+
+        function saveCustomers() {
+            localStorage.setItem('alabed_customers_v11', JSON.stringify(customers));
         }
 
         function loadSavedCustomers() {
-            const saved = localStorage.getItem('alabed_customers_v10');
+            const saved = localStorage.getItem('alabed_customers_v11');
             if (saved) {
-                const savedData = JSON.parse(saved);
-                customers.forEach(c => {
-                    const found = savedData.find(s => s.id === c.id);
-                    if (found) {
-                        c.debt = found.debt || 0;
-                        c.paid = found.paid || 0;
-                        c.totalDebt = found.totalDebt || c.totalDebt;
-                    }
-                });
+                customers = JSON.parse(saved);
             }
-            updateCustomerList();
+            renderCustomersList();
         }
 
-        function resetMovements() {
-            if (confirm('⚠️ هل أنت متأكد؟ سيتم حذف الحركة اليومية لجميع العملاء')) {
-                customers.forEach(c => { c.debt = 0; c.paid = 0; });
-                localStorage.setItem('alabed_customers_v10', JSON.stringify(customers));
-                updateCustomerList();
-                alert('✅ تم إعادة تعيين الحركة اليومية');
+        function downloadBackup() {
+            const dataStr = JSON.stringify(customers, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `customers_backup_${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('✅ تم تحميل النسخة الاحتياطية');
+        }
+
+        function updateCustomerMovement(index) {
+            const customer = customers[index];
+            const debtInput = document.getElementById(`debt_${index}`);
+            const paidInput = document.getElementById(`paid_${index}`);
+            
+            if (debtInput && paidInput) {
+                customer.debt = parseFloat(debtInput.value) || 0;
+                customer.paid = parseFloat(paidInput.value) || 0;
+                saveCustomers();
+                renderCustomersList();
+                alert(`✅ تم تحديث حركة ${customer.name}`);
             }
         }
 
-        function updateCustomerList() {
-            const select = document.getElementById('customerSelect');
-            select.innerHTML = '';
-            customers.forEach((customer, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                let status = '';
-                if (customer.debt > 0) status = '🔴 فاتورة جديدة';
-                else if (customer.paid > 0) status = '🟢 سداد';
-                option.textContent = `${customer.name} ${status}`;
-                select.appendChild(option);
+        function deleteCustomer(index) {
+            if (confirm(`⚠️ هل أنت متأكد من حذف ${customers[index].name}؟`)) {
+                customers.splice(index, 1);
+                saveCustomers();
+                renderCustomersList();
+                alert('✅ تم حذف العميل');
+            }
+        }
+
+        function addNewCustomer() {
+            const name = prompt('📝 اسم العميل:');
+            if (!name) return;
+            const phone = prompt('📞 رقم الهاتف:');
+            if (!phone) return;
+            const totalDebt = parseFloat(prompt('💰 الرصيد الحالي:')) || 0;
+            
+            customers.push({
+                id: Date.now(),
+                name: name,
+                phone: phone.replace(/[^0-9]/g, ''),
+                debt: 0,
+                paid: 0,
+                totalDebt: totalDebt
             });
-            if (customers.length > 0) updateCustomerDisplay();
+            saveCustomers();
+            renderCustomersList();
+            alert('✅ تم إضافة العميل');
         }
 
-        function updateCustomerDisplay() {
-            const select = document.getElementById('customerSelect');
-            const index = select.value;
-            if (index && customers[index]) {
-                const c = customers[index];
-                document.getElementById('debtAmount').innerHTML = c.debt > 0 ? `${c.debt.toLocaleString()} ريال` : '0 ريال';
-                document.getElementById('paidAmount').innerHTML = c.paid > 0 ? `${c.paid.toLocaleString()} ريال` : '0 ريال';
-                document.getElementById('totalDebtAmount').innerHTML = `${c.totalDebt.toLocaleString()} ريال`;
+        function resetAllData() {
+            if (confirm('⚠️ تحذير! سيتم حذف جميع العملاء والبيانات نهائياً. هل أنت متأكد؟')) {
+                customers = [];
+                localStorage.removeItem('alabed_customers_v11');
+                renderCustomersList();
+                alert('✅ تم حذف جميع البيانات');
             }
+        }
+
+        function renderCustomersList() {
+            const container = document.getElementById('customersContent');
+            
+            if (customers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 لا يوجد عملاء</p>
+                        <p style="font-size: 12px; margin-top: 10px;">قم برفع الملفات لتحميل العملاء</p>
+                        <button class="btn-add" onclick="addNewCustomer()" style="margin-top: 15px;">➕ إضافة عميل جديد يدوياً</button>
+                        <button class="btn-reset" onclick="resetAllData()" style="margin-top: 10px;">🗑️ حذف جميع البيانات</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div style="max-height: 400px; overflow-y: auto;">
+            `;
+            
+            for (let i = 0; i < customers.length; i++) {
+                const c = customers[i];
+                const rowStyle = c.debt > 0 || c.paid > 0 ? 'border-right: 4px solid #ff9800;' : '';
+                html += `
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; ${rowStyle}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong style="font-size: 16px;">${c.name}</strong>
+                                <div style="font-size: 11px; color: #666;">📞 ${c.phone || 'رقم غير مدخل'}</div>
+                                <div style="font-size: 12px; color: #2b8c5e; margin-top: 5px;">💰 الرصيد الكلي: ${c.totalDebt.toLocaleString()} ريال</div>
+                            </div>
+                            <button onclick="deleteCustomer(${i})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px;">🗑️</button>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin: 10px 0;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 12px; color: #e74c3c;">🟡 فاتورة جديدة (مدين)</label>
+                                <input type="number" id="debt_${i}" value="${c.debt}" step="any" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size: 12px; color: #27ae60;">🟢 سداد (دائن)</label>
+                                <input type="number" id="paid_${i}" value="${c.paid}" step="any" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="updateCustomerMovement(${i})" style="flex: 1; background: #17a2b8; color: white; border: none; padding: 8px; border-radius: 8px;">📝 تحديث الحركة</button>
+                            <button onclick="sendToWhatsApp(${i})" style="flex: 1; background: #25D366; color: white; border: none; padding: 8px; border-radius: 8px;">📱 واتساب</button>
+                            <button onclick="sendToSMS(${i})" style="flex: 1; background: #2196F3; color: white; border: none; padding: 8px; border-radius: 8px;">✉️ رسالة</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-add" onclick="addNewCustomer()">➕ إضافة عميل جديد</button>
+                        <button class="btn-reset" onclick="resetAllData()">🗑️ حذف جميع البيانات</button>
+                    </div>
+                `;
+            
+            container.innerHTML = html;
         }
 
         function calculateNewTotal(customer) {
@@ -359,8 +428,13 @@
 
         function createMessage(customer, newTotal) {
             let transactionText = '';
-            if (customer.debt > 0) transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (فاتورة جديدة)`;
-            else if (customer.paid > 0) transactionText = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
+            if (customer.debt > 0 && customer.paid > 0) {
+                transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (فاتورة جديدة) وتم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
+            } else if (customer.debt > 0) {
+                transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (فاتورة جديدة)`;
+            } else if (customer.paid > 0) {
+                transactionText = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
+            }
             
             return `الاخ ${customer.name}، نود اعلامكم بان ${transactionText} ليصبح اجمالي الرصيد عليكم ${newTotal.toLocaleString()} ريال.
 
@@ -371,40 +445,55 @@
 📞 770066128`;
         }
 
-        function sendViaWhatsApp() {
-            const select = document.getElementById('customerSelect');
-            const index = select.value;
-            if (!index) { alert('❌ الرجاء اختيار عميل'); return; }
-            
+        function sendToWhatsApp(index) {
             const customer = customers[index];
             if (customer.debt === 0 && customer.paid === 0) {
-                alert('⚠️ هذا العميل ليس لديه حركة يومية\nالرجاء معالجة الملفات أولاً');
+                alert('⚠️ لا توجد حركة يومية لهذا العميل\nالرجاء إدخال فاتورة جديدة أو سداد');
                 return;
+            }
+            
+            if (!customer.phone || customer.phone.length < 9) {
+                const phone = prompt(`📞 أدخل رقم هاتف ${customer.name}:`);
+                if (phone) {
+                    customer.phone = phone.replace(/[^0-9]/g, '');
+                    saveCustomers();
+                    renderCustomersList();
+                } else {
+                    return;
+                }
             }
             
             const newTotal = calculateNewTotal(customer);
             const message = createMessage(customer, newTotal);
             
+            // تحديث الرصيد بعد الإرسال
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
-            localStorage.setItem('alabed_customers_v10', JSON.stringify(customers));
-            updateCustomerList();
+            saveCustomers();
+            renderCustomersList();
             
             let phone = customer.phone.replace(/^0+/, '').replace(/^967/, '');
             window.open(`https://wa.me/967${phone}?text=${encodeURIComponent(message)}`, '_blank');
             alert('✅ تم فتح واتساب');
         }
 
-        function sendViaSMS() {
-            const select = document.getElementById('customerSelect');
-            const index = select.value;
-            if (!index) { alert('❌ الرجاء اختيار عميل'); return; }
-            
+        function sendToSMS(index) {
             const customer = customers[index];
             if (customer.debt === 0 && customer.paid === 0) {
-                alert('⚠️ هذا العميل ليس لديه حركة يومية\nالرجاء معالجة الملفات أولاً');
+                alert('⚠️ لا توجد حركة يومية لهذا العميل\nالرجاء إدخال فاتورة جديدة أو سداد');
                 return;
+            }
+            
+            if (!customer.phone || customer.phone.length < 9) {
+                const phone = prompt(`📞 أدخل رقم هاتف ${customer.name}:`);
+                if (phone) {
+                    customer.phone = phone.replace(/[^0-9]/g, '');
+                    saveCustomers();
+                    renderCustomersList();
+                } else {
+                    return;
+                }
             }
             
             const newTotal = calculateNewTotal(customer);
@@ -413,15 +502,24 @@
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
-            localStorage.setItem('alabed_customers_v10', JSON.stringify(customers));
-            updateCustomerList();
+            saveCustomers();
+            renderCustomersList();
             
             let phone = customer.phone.replace(/^0+/, '').replace(/^967/, '');
             window.location.href = `sms:+967${phone}?body=${encodeURIComponent(message)}`;
             alert('✅ تم فتح تطبيق الرسائل');
         }
 
-        document.getElementById('customerSelect')?.addEventListener('change', updateCustomerDisplay);
+        // جعل الدوال عامة
+        window.updateCustomerMovement = updateCustomerMovement;
+        window.deleteCustomer = deleteCustomer;
+        window.sendToWhatsApp = sendToWhatsApp;
+        window.sendToSMS = sendToSMS;
+        window.addNewCustomer = addNewCustomer;
+        window.resetAllData = resetAllData;
+        window.downloadBackup = downloadBackup;
+        
+        // تحميل البيانات المحفوظة
         loadSavedCustomers();
     </script>
 </body>
