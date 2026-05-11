@@ -5,46 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2196F3">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>مرسل الديون - صيدلية العابد</title>
     
-    <!-- مكتبة PDF.js لقراءة الملفات -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
         .card {
             background: white;
             border-radius: 20px;
@@ -52,7 +30,6 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-
         .card-title {
             font-size: 18px;
             font-weight: bold;
@@ -61,32 +38,15 @@
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
-
         .pharmacy-name {
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid #eee;
         }
-
-        .pharmacy-name h2 {
-            color: #1e5799;
-            font-size: 20px;
-        }
-
-        .pharmacy-name p {
-            color: #666;
-            font-size: 12px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
+        .pharmacy-name h2 { color: #1e5799; font-size: 20px; }
+        .pharmacy-name p { color: #666; font-size: 12px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: bold; font-size: 14px; }
         select, input {
             width: 100%;
             padding: 12px;
@@ -96,7 +56,6 @@
             font-size: 16px;
             font-family: inherit;
         }
-
         .file-input {
             padding: 10px;
             background: #f8f9fa;
@@ -105,11 +64,7 @@
             text-align: center;
             margin-bottom: 15px;
         }
-
-        .file-input input {
-            margin-bottom: 0;
-        }
-
+        .file-input input { margin-bottom: 0; }
         .info-card {
             background: #f8f9fa;
             padding: 15px;
@@ -117,7 +72,6 @@
             margin-bottom: 20px;
             border-right: 4px solid #2b8c5e;
         }
-
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -126,37 +80,12 @@
             padding: 5px 0;
             border-bottom: 1px dashed #ddd;
         }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #555;
-        }
-
-        .info-value.debt {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .info-value.paid {
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .info-value.total {
-            color: #2b8c5e;
-            font-weight: bold;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
+        .info-row:last-child { border-bottom: none; }
+        .info-label { font-weight: bold; color: #555; }
+        .info-value.debt { color: #e74c3c; font-weight: bold; }
+        .info-value.paid { color: #27ae60; font-weight: bold; }
+        .info-value.total { color: #2b8c5e; font-weight: bold; }
+        .button-group { display: flex; gap: 10px; margin-bottom: 15px; }
         button {
             flex: 1;
             padding: 14px;
@@ -167,35 +96,11 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-        }
-
-        .btn-sms {
-            background: #2196F3;
-            color: white;
-        }
-
-        .btn-process {
-            background: #2b8c5e;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn-add {
-            background: #FF9800;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-
+        button:active { transform: scale(0.98); }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-sms { background: #2196F3; color: white; }
+        .btn-process { background: #2b8c5e; color: white; width: 100%; margin-top: 10px; }
+        .btn-add { background: #FF9800; color: white; width: 100%; margin-top: 10px; }
         .info-note {
             background: #FFF3E0;
             padding: 10px;
@@ -205,7 +110,6 @@
             color: #E65100;
             text-align: center;
         }
-
         .success-msg {
             background: #d4edda;
             color: #155724;
@@ -215,7 +119,6 @@
             font-size: 12px;
             text-align: center;
         }
-
         .error-msg {
             background: #f8d7da;
             color: #721c24;
@@ -225,15 +128,7 @@
             font-size: 12px;
             text-align: center;
         }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: white;
-            font-size: 11px;
-            opacity: 0.7;
-        }
-
+        .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
         .loading {
             display: inline-block;
             width: 20px;
@@ -245,7 +140,6 @@
             margin-right: 10px;
             vertical-align: middle;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -259,7 +153,6 @@
             <p>نظام إدارة وإرسال الديون</p>
         </div>
         
-        <!-- قسم رفع الملفات -->
         <div class="card">
             <div class="card-title">📁 رفع الملفات اليومية</div>
             
@@ -280,7 +173,6 @@
             <div id="uploadStatus"></div>
         </div>
         
-        <!-- قسم العملاء -->
         <div class="card">
             <div class="card-title">👥 العملاء والحركة اليومية</div>
             
@@ -323,13 +215,13 @@
         </div>
         
         <div class="footer">
-            نظام مرسل الديون | صيدلية العابد v3.0
+            نظام مرسل الديون | صيدلية العابد v3.1
         </div>
     </div>
 
     <script>
         // ========================================
-        // قاعدة بيانات العملاء (ثابتة - أسماء وأرقام فقط)
+        // قاعدة بيانات العملاء (ثابتة)
         // ========================================
         
         let customers = [
@@ -346,10 +238,8 @@
             { id: 322, name: "مروان سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 0 }
         ];
 
-        // تكوين PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // تحميل البيانات المحفوظة
         function loadCustomers() {
             const saved = localStorage.getItem('alabed_customers');
             if (saved) {
@@ -365,7 +255,6 @@
         function updateCustomerList() {
             const select = document.getElementById('customerSelect');
             select.innerHTML = '';
-            
             customers.forEach((customer, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -375,7 +264,6 @@
                 option.textContent = `${customer.name} ${status}`;
                 select.appendChild(option);
             });
-            
             if (customers.length > 0) updateCustomerDisplay();
         }
 
@@ -390,59 +278,101 @@
             }
         }
 
-        // ========================================
-        // قراءة ملفات PDF
-        // ========================================
-        
         async function readPDF(file) {
             try {
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 let fullText = '';
-                
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
                     const pageText = textContent.items.map(item => item.str).join(' ');
                     fullText += pageText + ' ';
                 }
-                
                 return fullText;
             } catch (error) {
-                console.error('خطأ في قراءة PDF:', error);
+                console.error('PDF Error:', error);
                 return null;
             }
         }
 
-        // استخراج الأرقام من النص
-        function extractNumbers(text) {
-            const numbers = text.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
-            return numbers ? numbers.map(n => parseFloat(n.replace(/,/g, ''))) : [];
+        // استخراج الأرقام مع الحفاظ على سياقها
+        function extractNumbersWithContext(text) {
+            const lines = text.split(/\n|\s{2,}/);
+            const results = [];
+            
+            for (let line of lines) {
+                // البحث عن أرقام كبيرة (مبالغ مالية)
+                const numbers = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
+                if (numbers && numbers.length >= 2) {
+                    // تنظيف الأرقام
+                    const cleanNumbers = numbers.map(n => parseFloat(n.replace(/,/g, '')));
+                    
+                    // تحديد نوع الرقم حسب موقعه في السطر
+                    // في ملفات الصيدلية: الترتيب غالباً (مدين - دائن - رصيد) أو (الرصيد - دائن - مدين)
+                    results.push({
+                        text: line,
+                        numbers: cleanNumbers,
+                        hasDebt: line.includes('مدين') || line.includes('أخذ'),
+                        hasPaid: line.includes('دائن') || line.includes('سدد'),
+                        hasBalance: line.includes('رصيد') || line.includes('الرصيد')
+                    });
+                }
+            }
+            return results;
         }
 
-        // البحث عن رقم العميل في النص
+        // البحث عن بيانات العميل بدقة
         function findCustomerData(text, customerId, customerName) {
-            const lines = text.split('\n');
             let debt = 0;
             let paid = 0;
             let balance = 0;
             
+            const lines = text.split('\n');
+            
             for (let line of lines) {
-                // البحث عن رقم العميل أو الاسم
+                // البحث عن سطر يحتوي على رقم العميل أو الاسم
                 if (line.includes(customerId.toString()) || line.includes(customerName)) {
-                    const numbers = extractNumbers(line);
+                    // استخراج جميع الأرقام من السطر
+                    const numbers = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
                     
-                    // حسب تنسيق الملف: مدين, دائن, رصيد
-                    if (numbers.length >= 3) {
-                        // افتراض: الرقم الأول مدين، الثاني دائن، الثالث رصيد
-                        debt = numbers[0] || 0;
-                        paid = numbers[1] || 0;
-                        balance = numbers[2] || 0;
-                    } else if (numbers.length >= 2) {
-                        debt = numbers[0] || 0;
-                        paid = numbers[1] || 0;
-                    } else if (numbers.length >= 1) {
-                        balance = numbers[0] || 0;
+                    if (numbers && numbers.length > 0) {
+                        const cleanNumbers = numbers.map(n => parseFloat(n.replace(/,/g, '')));
+                        
+                        // تحليل السطر لتحديد معنى كل رقم
+                        if (cleanNumbers.length === 3) {
+                            // حالة: الرقم الأول هو الرصيد، الثاني دائن، الثالث مدين (أو العكس)
+                            // بناءً على تنسيق ملفات الصيدلية
+                            if (line.includes('رصيد') || line.includes('الرصيد')) {
+                                balance = cleanNumbers[0];
+                                paid = cleanNumbers[1];
+                                debt = cleanNumbers[2];
+                            } else {
+                                // افتراض: مدين، دائن، رصيد
+                                debt = cleanNumbers[0];
+                                paid = cleanNumbers[1];
+                                balance = cleanNumbers[2];
+                            }
+                        } else if (cleanNumbers.length === 2) {
+                            if (line.includes('مدين') || line.includes('أخذ')) {
+                                debt = cleanNumbers[0];
+                                paid = cleanNumbers[1];
+                            } else if (line.includes('دائن') || line.includes('سدد')) {
+                                paid = cleanNumbers[0];
+                                debt = cleanNumbers[1];
+                            } else {
+                                debt = cleanNumbers[0];
+                                paid = cleanNumbers[1];
+                            }
+                        } else if (cleanNumbers.length === 1) {
+                            if (line.includes('رصيد')) {
+                                balance = cleanNumbers[0];
+                            } else if (line.includes('مدين')) {
+                                debt = cleanNumbers[0];
+                            } else if (line.includes('دائن')) {
+                                paid = cleanNumbers[0];
+                            }
+                        }
                     }
                     break;
                 }
@@ -451,7 +381,6 @@
             return { debt, paid, balance };
         }
 
-        // معالجة الملفات
         async function processPDFs() {
             const dailyFile = document.getElementById('dailyMovementsFile').files[0];
             const balanceFile = document.getElementById('balanceSheetFile').files[0];
@@ -464,7 +393,6 @@
             const statusDiv = document.getElementById('uploadStatus');
             statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الأول...</div>';
             
-            // قراءة الملف الأول (الحركة اليومية)
             const dailyText = await readPDF(dailyFile);
             if (!dailyText) {
                 statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الأول</div>';
@@ -473,7 +401,6 @@
             
             statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الثاني...</div>';
             
-            // قراءة الملف الثاني (كشف الحساب)
             const balanceText = await readPDF(balanceFile);
             if (!balanceText) {
                 statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الثاني</div>';
@@ -482,20 +409,18 @@
             
             statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري معالجة البيانات...</div>';
             
-            // معالجة كل عميل
             let updatedCount = 0;
+            let debugInfo = [];
             
             for (let customer of customers) {
-                // البحث في الملف الأول
                 const dailyData = findCustomerData(dailyText, customer.id, customer.name);
-                
-                // البحث في الملف الثاني
                 const balanceData = findCustomerData(balanceText, customer.id, customer.name);
                 
                 if (dailyData.debt > 0 || dailyData.paid > 0) {
                     customer.debt = dailyData.debt;
                     customer.paid = dailyData.paid;
                     updatedCount++;
+                    debugInfo.push(`${customer.name}: مدين=${dailyData.debt}, دائن=${dailyData.paid}`);
                 }
                 
                 if (balanceData.balance > 0) {
@@ -510,19 +435,16 @@
                 <div class="success-msg">
                     ✅ تم معالجة الملفين بنجاح!<br>
                     📊 تم تحديث ${updatedCount} عميل لديهم حركة يومية<br>
+                    📝 التفاصيل: ${debugInfo.join(' | ')}<br>
                     💾 تم حفظ البيانات تلقائياً
                 </div>
             `;
             
             setTimeout(() => {
                 statusDiv.innerHTML = '';
-            }, 5000);
+            }, 8000);
         }
 
-        // ========================================
-        // إرسال الرسائل
-        // ========================================
-        
         function calculateNewTotal(customer) {
             let newTotal = customer.totalDebt;
             if (customer.debt > 0) newTotal = customer.totalDebt + customer.debt;
