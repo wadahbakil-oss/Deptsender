@@ -8,6 +8,9 @@
     <meta name="theme-color" content="#2196F3">
     <title>مرسل الديون</title>
     <link rel="stylesheet" href="style.css">
+    <!-- مكتبات PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,6 +34,14 @@
                 </button>
             </div>
             
+            <button class="btn-pdf" onclick="attachPDF()">
+                📎 إرفاق فاتورة PDF
+            </button>
+            
+            <button class="btn-invoice" onclick="generateAndSendPDF()">
+                📄 إنشاء وإرسال فاتورة PDF
+            </button>
+            
             <button class="btn-add" onclick="addNewCustomer()">
                 ➕ إضافة عميل جديد
             </button>
@@ -39,4 +50,4 @@
     
     <script src="script.js"></script>
 </body>
-      </html>
+</html>
