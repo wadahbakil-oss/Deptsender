@@ -4,26 +4,303 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2196F3">
-    <title>مرسل الديون</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- مكتبات PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <title>مرسل الديون - صيدلية العابد</title>
+    
+    <!-- مكتبة PDF.js لقراءة الملفات -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e5799;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .pharmacy-name {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .pharmacy-name h2 {
+            color: #1e5799;
+            font-size: 20px;
+        }
+
+        .pharmacy-name p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .file-input {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .file-input input {
+            margin-bottom: 0;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-right: 4px solid #2b8c5e;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .info-value.debt {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .info-value.paid {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .info-value.total {
+            color: #2b8c5e;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-sms {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-process {
+            background: #2b8c5e;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-add {
+            background: #FF9800;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .info-note {
+            background: #FFF3E0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #E65100;
+            text-align: center;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2b8c5e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>📱 مرسل الديون</h1>
+        <div class="header">
+            <h1>🏥 صيدلية العابد</h1>
+            <p>نظام إدارة وإرسال الديون</p>
+        </div>
         
+        <!-- قسم رفع الملفات -->
         <div class="card">
-            <label>👤 اختر العميل</label>
+            <div class="card-title">📁 رفع الملفات اليومية</div>
+            
+            <div class="file-input">
+                <label>📄 الملف الأول: الحركة اليومية (مدين/دائن)</label>
+                <input type="file" id="dailyMovementsFile" accept=".pdf">
+            </div>
+            
+            <div class="file-input">
+                <label>📊 الملف الثاني: كشف الحساب (الأرصدة)</label>
+                <input type="file" id="balanceSheetFile" accept=".pdf">
+            </div>
+            
+            <button class="btn-process" onclick="processPDFs()">
+                🔄 معالجة الملفين وتحديث الحركة
+            </button>
+            
+            <div id="uploadStatus"></div>
+        </div>
+        
+        <!-- قسم العملاء -->
+        <div class="card">
+            <div class="card-title">👥 العملاء والحركة اليومية</div>
+            
+            <label>اختر العميل</label>
             <select id="customerSelect"></select>
             
-            <div class="current-debt" id="currentDebt">الرصيد الحالي: 0 ريال</div>
-            
-            <label>💰 المبلغ الجديد المقيد</label>
-            <input type="number" id="amountInput" placeholder="أدخل المبلغ" step="0.01">
+            <div class="info-card" id="customerInfo">
+                <div class="info-row">
+                    <span class="info-label">🟡 أخذ (مدين):</span>
+                    <span class="info-value debt" id="debtAmount">0 ريال</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">🟢 سدد (دائن):</span>
+                    <span class="info-value paid" id="paidAmount">0 ريال</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📊 إجمالي الرصيد عليه:</span>
+                    <span class="info-value total" id="totalDebtAmount">0 ريال</span>
+                </div>
+            </div>
             
             <div class="button-group">
                 <button class="btn-whatsapp" onclick="sendViaWhatsApp()">
@@ -34,20 +311,315 @@
                 </button>
             </div>
             
-            <button class="btn-pdf" onclick="attachPDF()">
-                📎 إرفاق فاتورة PDF
-            </button>
-            
-            <button class="btn-invoice" onclick="generateAndSendPDF()">
-                📄 إنشاء وإرسال فاتورة PDF
-            </button>
-            
             <button class="btn-add" onclick="addNewCustomer()">
-                ➕ إضافة عميل جديد
+                ➕ إضافة عميل جديد (يدوياً)
             </button>
+            
+            <div class="info-note">
+                📌 مدين (أخذ) = مبلغ جديد على العميل + يزيد الرصيد<br>
+                📌 دائن (سدد) = مبلغ سدده العميل - يقلل الرصيد<br>
+                📌 يتم تحديث الحركة اليومية من خلال رفع ملف PDF
+            </div>
+        </div>
+        
+        <div class="footer">
+            نظام مرسل الديون | صيدلية العابد v3.0
         </div>
     </div>
-    
-    <script src="script.js"></script>
+
+    <script>
+        // ========================================
+        // قاعدة بيانات العملاء (ثابتة - أسماء وأرقام فقط)
+        // ========================================
+        
+        let customers = [
+            { id: 63, name: "وليد الزماني", phone: "777614827", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 51, name: "ناصر العتمي", phone: "736379838", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 12, name: "عبدالله الحكيمي", phone: "735574604", debt: 0, paid: 0, totalDebt: 2950.20 },
+            { id: 6, name: "عبدالله المروسي", phone: "711258371", debt: 0, paid: 0, totalDebt: 435340.07 },
+            { id: 93, name: "عبدالله شيبان", phone: "777458368", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 110, name: "حسن الطباخ", phone: "770370211", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 146, name: "لطف محمد قاسم", phone: "777206743", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 228, name: "ام براءه", phone: "735718544", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 311, name: "ام محمد ضمانة اختيار", phone: "774923011", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 315, name: "محمد نجيب صاحب البطاط", phone: "733736264", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 322, name: "مروان سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 0 }
+        ];
+
+        // تكوين PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        // تحميل البيانات المحفوظة
+        function loadCustomers() {
+            const saved = localStorage.getItem('alabed_customers');
+            if (saved) {
+                customers = JSON.parse(saved);
+            }
+            updateCustomerList();
+        }
+
+        function saveCustomers() {
+            localStorage.setItem('alabed_customers', JSON.stringify(customers));
+        }
+
+        function updateCustomerList() {
+            const select = document.getElementById('customerSelect');
+            select.innerHTML = '';
+            
+            customers.forEach((customer, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                let status = '';
+                if (customer.debt > 0) status = '🔴 أخذ';
+                else if (customer.paid > 0) status = '🟢 سدد';
+                option.textContent = `${customer.name} ${status}`;
+                select.appendChild(option);
+            });
+            
+            if (customers.length > 0) updateCustomerDisplay();
+        }
+
+        function updateCustomerDisplay() {
+            const select = document.getElementById('customerSelect');
+            const index = select.value;
+            if (index && customers[index]) {
+                const c = customers[index];
+                document.getElementById('debtAmount').innerHTML = c.debt > 0 ? `${c.debt.toLocaleString()} ريال` : '0 ريال';
+                document.getElementById('paidAmount').innerHTML = c.paid > 0 ? `${c.paid.toLocaleString()} ريال` : '0 ريال';
+                document.getElementById('totalDebtAmount').innerHTML = `${c.totalDebt.toLocaleString()} ريال`;
+            }
+        }
+
+        // ========================================
+        // قراءة ملفات PDF
+        // ========================================
+        
+        async function readPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + ' ';
+                }
+                
+                return fullText;
+            } catch (error) {
+                console.error('خطأ في قراءة PDF:', error);
+                return null;
+            }
+        }
+
+        // استخراج الأرقام من النص
+        function extractNumbers(text) {
+            const numbers = text.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
+            return numbers ? numbers.map(n => parseFloat(n.replace(/,/g, ''))) : [];
+        }
+
+        // البحث عن رقم العميل في النص
+        function findCustomerData(text, customerId, customerName) {
+            const lines = text.split('\n');
+            let debt = 0;
+            let paid = 0;
+            let balance = 0;
+            
+            for (let line of lines) {
+                // البحث عن رقم العميل أو الاسم
+                if (line.includes(customerId.toString()) || line.includes(customerName)) {
+                    const numbers = extractNumbers(line);
+                    
+                    // حسب تنسيق الملف: مدين, دائن, رصيد
+                    if (numbers.length >= 3) {
+                        // افتراض: الرقم الأول مدين، الثاني دائن، الثالث رصيد
+                        debt = numbers[0] || 0;
+                        paid = numbers[1] || 0;
+                        balance = numbers[2] || 0;
+                    } else if (numbers.length >= 2) {
+                        debt = numbers[0] || 0;
+                        paid = numbers[1] || 0;
+                    } else if (numbers.length >= 1) {
+                        balance = numbers[0] || 0;
+                    }
+                    break;
+                }
+            }
+            
+            return { debt, paid, balance };
+        }
+
+        // معالجة الملفات
+        async function processPDFs() {
+            const dailyFile = document.getElementById('dailyMovementsFile').files[0];
+            const balanceFile = document.getElementById('balanceSheetFile').files[0];
+            
+            if (!dailyFile || !balanceFile) {
+                alert('❌ الرجاء اختيار الملفين');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الأول...</div>';
+            
+            // قراءة الملف الأول (الحركة اليومية)
+            const dailyText = await readPDF(dailyFile);
+            if (!dailyText) {
+                statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الأول</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري قراءة الملف الثاني...</div>';
+            
+            // قراءة الملف الثاني (كشف الحساب)
+            const balanceText = await readPDF(balanceFile);
+            if (!balanceText) {
+                statusDiv.innerHTML = '<div class="error-msg">❌ فشل في قراءة الملف الثاني</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="success-msg"><span class="loading"></span> جاري معالجة البيانات...</div>';
+            
+            // معالجة كل عميل
+            let updatedCount = 0;
+            
+            for (let customer of customers) {
+                // البحث في الملف الأول
+                const dailyData = findCustomerData(dailyText, customer.id, customer.name);
+                
+                // البحث في الملف الثاني
+                const balanceData = findCustomerData(balanceText, customer.id, customer.name);
+                
+                if (dailyData.debt > 0 || dailyData.paid > 0) {
+                    customer.debt = dailyData.debt;
+                    customer.paid = dailyData.paid;
+                    updatedCount++;
+                }
+                
+                if (balanceData.balance > 0) {
+                    customer.totalDebt = balanceData.balance;
+                }
+            }
+            
+            saveCustomers();
+            updateCustomerList();
+            
+            statusDiv.innerHTML = `
+                <div class="success-msg">
+                    ✅ تم معالجة الملفين بنجاح!<br>
+                    📊 تم تحديث ${updatedCount} عميل لديهم حركة يومية<br>
+                    💾 تم حفظ البيانات تلقائياً
+                </div>
+            `;
+            
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // ========================================
+        // إرسال الرسائل
+        // ========================================
+        
+        function calculateNewTotal(customer) {
+            let newTotal = customer.totalDebt;
+            if (customer.debt > 0) newTotal = customer.totalDebt + customer.debt;
+            if (customer.paid > 0) newTotal = customer.totalDebt - customer.paid;
+            return newTotal;
+        }
+
+        function createMessage(customer, newTotal) {
+            let transactionText = '';
+            if (customer.debt > 0) {
+                transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (مشتريات)`;
+            } else if (customer.paid > 0) {
+                transactionText = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
+            }
+            
+            return `الاخ ${customer.name}، نود اعلامكم بان ${transactionText} ليصبح اجمالي الرصيد عليكم ${newTotal.toLocaleString()} ريال.
+
+يرجى السداد بداية ونهاية كل شهر
+
+🏥 صيدلية العابد
+تعز - الحوبان - مدخل البريد
+📞 770066128`;
+        }
+
+        function sendViaWhatsApp() {
+            const select = document.getElementById('customerSelect');
+            const index = select.value;
+            if (!index) { alert('❌ الرجاء اختيار عميل'); return; }
+            
+            const customer = customers[index];
+            if (customer.debt === 0 && customer.paid === 0) {
+                alert('⚠️ هذا العميل ليس لديه حركة يومية');
+                return;
+            }
+            
+            const newTotal = calculateNewTotal(customer);
+            const message = createMessage(customer, newTotal);
+            
+            customer.totalDebt = newTotal;
+            customer.debt = 0;
+            customer.paid = 0;
+            saveCustomers();
+            updateCustomerList();
+            
+            let phoneNumber = customer.phone.toString();
+            phoneNumber = phoneNumber.replace(/^0+/, '').replace(/^967/, '');
+            window.open(`https://wa.me/967${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+            alert('✅ تم فتح واتساب');
+        }
+
+        function sendViaSMS() {
+            const select = document.getElementById('customerSelect');
+            const index = select.value;
+            if (!index) { alert('❌ الرجاء اختيار عميل'); return; }
+            
+            const customer = customers[index];
+            if (customer.debt === 0 && customer.paid === 0) {
+                alert('⚠️ هذا العميل ليس لديه حركة يومية');
+                return;
+            }
+            
+            const newTotal = calculateNewTotal(customer);
+            const message = createMessage(customer, newTotal);
+            
+            customer.totalDebt = newTotal;
+            customer.debt = 0;
+            customer.paid = 0;
+            saveCustomers();
+            updateCustomerList();
+            
+            let phoneNumber = customer.phone.toString();
+            phoneNumber = phoneNumber.replace(/^0+/, '').replace(/^967/, '');
+            window.location.href = `sms:+967${phoneNumber}?body=${encodeURIComponent(message)}`;
+            alert('✅ تم فتح تطبيق الرسائل');
+        }
+
+        function addNewCustomer() {
+            const name = prompt('📝 اسم العميل:');
+            if (!name) return;
+            const phone = prompt('📞 رقم الهاتف:');
+            if (!phone) return;
+            
+            customers.push({
+                id: Date.now(),
+                name: name,
+                phone: phone.replace(/[^0-9]/g, ''),
+                debt: 0,
+                paid: 0,
+                totalDebt: 0
+            });
+            saveCustomers();
+            updateCustomerList();
+            alert('✅ تم إضافة العميل');
+        }
+
+        document.getElementById('customerSelect')?.addEventListener('change', updateCustomerDisplay);
+        loadCustomers();
+    </script>
 </body>
 </html>
