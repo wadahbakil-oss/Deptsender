@@ -97,6 +97,20 @@ button:active {
     color: white;
 }
 
+.btn-pdf {
+    background: #f44336;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-invoice {
+    background: #9C27B0;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
 .btn-add {
     background: #FF9800;
     color: white;
@@ -104,7 +118,7 @@ button:active {
     margin-top: 10px;
 }
 
-.btn-whatsapp:hover, .btn-sms:hover, .btn-add:hover {
+.btn-whatsapp:hover, .btn-sms:hover, .btn-pdf:hover, .btn-invoice:hover, .btn-add:hover {
     opacity: 0.9;
 }
 
@@ -120,4 +134,4 @@ button:active {
     .button-group {
         flex-direction: column;
     }
-  }
+}
