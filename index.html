@@ -65,6 +65,7 @@
             margin-bottom: 15px;
         }
         .file-input input { margin-bottom: 0; }
+        .file-input small { display: block; margin-top: 5px; color: #666; font-size: 11px; }
         .info-card {
             background: #f8f9fa;
             padding: 15px;
@@ -158,15 +159,15 @@
             <div class="card-title">📁 رفع الملفات اليومية</div>
             
             <div class="file-input">
-                <label>📄 الملف الأول: الحركة اليومية (مدين/دائن)</label>
+                <label>📄 الملف الأول: الحركة اليومية</label>
                 <input type="file" id="dailyMovementsFile" accept=".pdf">
-                <small style="color:#666;">يحتوي على: اسم العميل، رقم العميل، مدين، دائن</small>
+                <small>يحتوي على: اسم العميل، مدين (فاتورة جديدة)، دائن (سداد جديد)</small>
             </div>
             
             <div class="file-input">
                 <label>📊 الملف الثاني: كشف الحساب (الأرصدة)</label>
                 <input type="file" id="balanceSheetFile" accept=".pdf">
-                <small style="color:#666;">يحتوي على: اسم العميل، رقم العميل، الرصيد النهائي</small>
+                <small>يحتوي على: اسم العميل، الرصيد النهائي (من بداية السنة)</small>
             </div>
             
             <button class="btn-process" onclick="processPDFs()">
@@ -184,15 +185,15 @@
             
             <div class="info-card" id="customerInfo">
                 <div class="info-row">
-                    <span class="info-label">🟡 أخذ (مدين):</span>
+                    <span class="info-label">🟡 فاتورة جديدة (مدين):</span>
                     <span class="info-value debt" id="debtAmount">0 ريال</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">🟢 سدد (دائن):</span>
+                    <span class="info-label">🟢 سداد جديد (دائن):</span>
                     <span class="info-value paid" id="paidAmount">0 ريال</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">📊 إجمالي الرصيد عليه:</span>
+                    <span class="info-label">📊 إجمالي الرصيد الكلي:</span>
                     <span class="info-value total" id="totalDebtAmount">0 ريال</span>
                 </div>
             </div>
@@ -215,14 +216,14 @@
             </button>
             
             <div class="info-note">
-                📌 مدين (أخذ) = مبلغ جديد على العميل + يزيد الرصيد<br>
-                📌 دائن (سدد) = مبلغ سدده العميل - يقلل الرصيد<br>
-                📌 يتم تحديث الحركة اليومية من خلال رفع ملف PDF
+                📌 الملف الأول: يستخرج "مدين" (فاتورة جديدة) و "دائن" (سداد جديد)<br>
+                📌 الملف الثاني: يستخرج "الرصيد النهائي" من العمود الأخير<br>
+                📌 عند الإرسال: يتم تحديث الرصيد تلقائياً
             </div>
         </div>
         
         <div class="footer">
-            نظام مرسل الديون | صيدلية العابد v4.0
+            نظام مرسل الديون | صيدلية العابد v5.0
         </div>
     </div>
 
@@ -248,28 +249,42 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         function loadCustomers() {
-            const saved = localStorage.getItem('alabed_customers_v4');
+            const saved = localStorage.getItem('alabed_customers_v5');
             if (saved) {
                 customers = JSON.parse(saved);
+            } else {
+                // تعيين الأرصدة الافتراضية من الملف الثاني
+                customers.forEach(c => {
+                    if (c.id === 6) c.totalDebt = 435340.07;
+                    if (c.id === 12) c.totalDebt = 2950.20;
+                    if (c.id === 51) c.totalDebt = 22886.00;
+                    if (c.id === 63) c.totalDebt = 12875.40;
+                    if (c.id === 93) c.totalDebt = 184755.11;
+                    if (c.id === 110) c.totalDebt = 8810.00;
+                    if (c.id === 146) c.totalDebt = 98044.21;
+                    if (c.id === 228) c.totalDebt = 7468.98;
+                    if (c.id === 311) c.totalDebt = 19892.00;
+                    if (c.id === 315) c.totalDebt = 69002.00;
+                    if (c.id === 322) c.totalDebt = 200.00;
+                });
+                saveCustomers();
             }
             updateCustomerList();
         }
 
         function saveCustomers() {
-            localStorage.setItem('alabed_customers_v4', JSON.stringify(customers));
+            localStorage.setItem('alabed_customers_v5', JSON.stringify(customers));
         }
 
         function resetAllData() {
-            if (confirm('⚠️ هل أنت متأكد؟ سيتم حذف جميع البيانات المؤقتة وإعادة تعيين الأرصدة إلى الصفر.')) {
-                // إعادة تعيين الأرصدة
+            if (confirm('⚠️ هل أنت متأكد؟ سيتم حذف جميع البيانات المؤقتة وإعادة تعيين الأرصدة.')) {
                 customers.forEach(c => {
                     c.debt = 0;
                     c.paid = 0;
-                    c.totalDebt = 0;
                 });
                 saveCustomers();
                 updateCustomerList();
-                document.getElementById('uploadStatus').innerHTML = '<div class="success-msg">✅ تم إعادة تعيين جميع البيانات</div>';
+                document.getElementById('uploadStatus').innerHTML = '<div class="success-msg">✅ تم إعادة تعيين الحركة اليومية (الأرصدة الكلية محفوظة)</div>';
                 setTimeout(() => {
                     document.getElementById('uploadStatus').innerHTML = '';
                 }, 3000);
@@ -283,8 +298,8 @@
                 const option = document.createElement('option');
                 option.value = index;
                 let status = '';
-                if (customer.debt > 0) status = '🔴 أخذ';
-                else if (customer.paid > 0) status = '🟢 سدد';
+                if (customer.debt > 0) status = '🔴 فاتورة جديدة';
+                else if (customer.paid > 0) status = '🟢 سداد';
                 option.textContent = `${customer.name} ${status}`;
                 select.appendChild(option);
             });
@@ -320,66 +335,57 @@
             }
         }
 
-        // استخراج البيانات من النص باستخدام الرقم والاسم
-        function extractCustomerDataFromText(text, customerId, customerName) {
+        // استخراج البيانات من الملف الأول (حركة يومية)
+        function extractMovementData(text, customerId, customerName) {
             let debt = 0;
             let paid = 0;
-            let balance = 0;
             
-            // تقسيم النص إلى سطور
             const lines = text.split(/\n|(?=\d+\s+[أ-ي])/);
             
             for (let line of lines) {
-                // البحث عن سطر يحتوي على رقم العميل أو الاسم
                 if (line.includes(customerId.toString()) || line.includes(customerName)) {
-                    console.log(`Found line for ${customerName}:`, line);
-                    
-                    // استخراج جميع الأرقام
                     const numbers = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
                     
-                    if (numbers && numbers.length > 0) {
+                    if (numbers && numbers.length >= 2) {
                         const cleanNumbers = numbers.map(n => parseFloat(n.replace(/,/g, '')));
-                        
-                        // إذا كان السطر يحتوي على 3 أرقام (رصيد، دائن، مدين أو العكس)
-                        if (cleanNumbers.length >= 3) {
-                            // تنسيق ملف كشف الحساب: الرصيد | دائن | مدين
-                            balance = cleanNumbers[0];
-                            paid = cleanNumbers[1];
-                            debt = cleanNumbers[2];
-                        }
-                        // إذا كان السطر يحتوي على رقمين (مدين، دائن)
-                        else if (cleanNumbers.length === 2) {
-                            if (line.includes('مدين') || line.includes('أخذ')) {
-                                debt = cleanNumbers[0];
-                                paid = cleanNumbers[1];
-                            } else if (line.includes('دائن') || line.includes('سدد')) {
-                                paid = cleanNumbers[0];
-                                debt = cleanNumbers[1];
-                            } else {
-                                // افتراض: الأول مدين والثاني دائن
-                                debt = cleanNumbers[0];
-                                paid = cleanNumbers[1];
-                            }
-                        }
-                        // إذا كان هناك رقم واحد (رصيد فقط)
-                        else if (cleanNumbers.length === 1) {
-                            if (line.includes('رصيد') || line.includes('الرصيد')) {
-                                balance = cleanNumbers[0];
-                            } else if (line.includes('مدين')) {
-                                debt = cleanNumbers[0];
-                            } else if (line.includes('دائن')) {
-                                paid = cleanNumbers[0];
-                            } else {
-                                // افتراض أنه رصيد
-                                balance = cleanNumbers[0];
-                            }
-                        }
+                        // في الملف الأول: الرقم الأول مدين، الثاني دائن
+                        debt = cleanNumbers[0] || 0;
+                        paid = cleanNumbers[1] || 0;
+                    } else if (numbers && numbers.length === 1) {
+                        // إذا كان رقم واحد فقط، فهو مدين
+                        debt = parseFloat(numbers[0].replace(/,/g, '')) || 0;
                     }
                     break;
                 }
             }
             
-            return { debt, paid, balance };
+            return { debt, paid };
+        }
+
+        // استخراج الرصيد من الملف الثاني (كشف الحساب)
+        function extractBalanceData(text, customerId, customerName) {
+            let balance = 0;
+            
+            const lines = text.split(/\n|(?=\d+\s+[أ-ي])/);
+            
+            for (let line of lines) {
+                if (line.includes(customerId.toString()) || line.includes(customerName)) {
+                    const numbers = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?/g);
+                    
+                    if (numbers && numbers.length >= 3) {
+                        const cleanNumbers = numbers.map(n => parseFloat(n.replace(/,/g, '')));
+                        // في الملف الثاني: الرقم الثالث هو الرصيد (بعد مدين ودائن)
+                        balance = cleanNumbers[2] || 0;
+                    } else if (numbers && numbers.length === 2) {
+                        balance = cleanNumbers[1] || 0;
+                    } else if (numbers && numbers.length === 1) {
+                        balance = cleanNumbers[0] || 0;
+                    }
+                    break;
+                }
+            }
+            
+            return balance;
         }
 
         async function processPDFs() {
@@ -415,31 +421,23 @@
             let details = [];
             
             for (let customer of customers) {
-                // قراءة بيانات الحركة اليومية (مدين/دائن)
-                const movementData = extractCustomerDataFromText(dailyText, customer.id, customer.name);
+                // قراءة الحركة اليومية (مدين/دائن)
+                const movement = extractMovementData(dailyText, customer.id, customer.name);
                 
-                // قراءة بيانات الرصيد (من كشف الحساب)
-                const balanceData = extractCustomerDataFromText(balanceText, customer.id, customer.name);
+                // قراءة الرصيد الكلي
+                const newBalance = extractBalanceData(balanceText, customer.id, customer.name);
                 
-                let changed = false;
-                
-                if (movementData.debt > 0 || movementData.paid > 0) {
-                    customer.debt = movementData.debt;
-                    customer.paid = movementData.paid;
+                if (movement.debt > 0 || movement.paid > 0) {
+                    customer.debt = movement.debt;
+                    customer.paid = movement.paid;
                     updatedMovements++;
-                    changed = true;
-                    details.push(`${customer.name}: أخذ=${movementData.debt}, سدد=${movementData.paid}`);
+                    details.push(`${customer.name}: فاتورة جديدة=${movement.debt}, سداد=${movement.paid}`);
                 }
                 
-                if (balanceData.balance > 0 && balanceData.balance !== customer.totalDebt) {
-                    customer.totalDebt = balanceData.balance;
+                if (newBalance > 0 && newBalance !== customer.totalDebt) {
+                    customer.totalDebt = newBalance;
                     updatedBalances++;
-                    changed = true;
-                    details.push(`${customer.name}: الرصيد=${balanceData.balance}`);
-                }
-                
-                if (changed) {
-                    console.log(`Updated ${customer.name}:`, customer);
+                    details.push(`${customer.name}: الرصيد الكلي=${newBalance.toLocaleString()}`);
                 }
             }
             
@@ -448,7 +446,7 @@
             
             let message = `✅ تم معالجة الملفين بنجاح!\n`;
             message += `📊 تم تحديث ${updatedMovements} عميل لديهم حركة يومية\n`;
-            message += `💰 تم تحديث ${updatedBalances} عميل لديهم أرصدة جديدة\n`;
+            message += `💰 تم تحديث ${updatedBalances} عميل لديهم رصيد كلي جديد\n`;
             if (details.length > 0) {
                 message += `📝 التفاصيل:\n${details.join('\n')}`;
             }
@@ -470,11 +468,9 @@
         function createMessage(customer, newTotal) {
             let transactionText = '';
             if (customer.debt > 0) {
-                transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (مشتريات/خدمات)`;
+                transactionText = `تم تقيد مبلغ ${customer.debt.toLocaleString()} ريال (فاتورة جديدة)`;
             } else if (customer.paid > 0) {
                 transactionText = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
-            } else {
-                transactionText = `تم مراجعة حسابكم`;
             }
             
             return `الاخ ${customer.name}، نود اعلامكم بان ${transactionText} ليصبح اجمالي الرصيد عليكم ${newTotal.toLocaleString()} ريال.
@@ -500,7 +496,6 @@
             const newTotal = calculateNewTotal(customer);
             const message = createMessage(customer, newTotal);
             
-            // تحديث الرصيد بعد الإرسال
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
