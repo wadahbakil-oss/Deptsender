@@ -14,16 +14,20 @@
         .header h1 { font-size: 24px; }
         .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .card-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #1e5799; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .file-input { padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 10px; text-align: center; margin-bottom: 15px; }
+        .file-input small { display: block; margin-top: 5px; color: #666; font-size: 11px; }
         .btn { padding: 12px 20px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-success { background: #2b8c5e; color: white; }
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-sms { background: #2196F3; color: white; }
-        .btn-update { background: #17a2b8; color: white; }
         .btn-danger { background: #dc3545; color: white; }
+        .btn-update { background: #17a2b8; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; font-size: 13px; }
         th { background: #f0f0f0; }
         input { padding: 5px; text-align: center; border-radius: 6px; border: 1px solid #ddd; width: 80px; }
         .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
+        .success-msg { background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; }
         .info-note { background: #FFF3E0; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; }
     </style>
 </head>
@@ -35,14 +39,35 @@
         </div>
         
         <div class="card">
+            <div class="card-title">📁 رفع ملف الحركة اليومية (Excel/CSV)</div>
+            
+            <div class="file-input">
+                <label>📊 ملف CSV (من Excel)</label>
+                <input type="file" id="movementFile" accept=".csv,.xlsx,.xls">
+                <small>التنسيق: رقم العميل, الاسم, المبلغ (موجب=فاتورة جديدة، سالب=سداد)</small>
+                <small>مثال: 6,عبدالله المروسي,2250</small>
+            </div>
+            
+            <button class="btn btn-success" onclick="loadMovementFile()">
+                📥 تحديث الحركة اليومية من الملف
+            </button>
+            
+            <button class="btn btn-update" onclick="downloadTemplate()">
+                📄 تحميل قالب الملف
+            </button>
+            
+            <div id="uploadStatus"></div>
+        </div>
+        
+        <div class="card">
             <div class="card-title">👥 العملاء والحركة اليومية</div>
             
             <div id="customersTable"></div>
             
             <div class="info-note">
-                📌 كل يوم: أدخل "فاتورة جديدة" أو "سداد" ثم اضغط "تحديث"<br>
-                📌 ثم اضغط 📱 واتساب أو ✉️ رسالة للإرسال<br>
-                📌 أرقام الهواتف مدخلة مسبقاً من ملف Excel الذي أرسلته
+                📌 البيانات الثابتة (الأسماء والأرقام والأرصدة) موجودة مسبقاً<br>
+                📌 كل يوم: ارفع ملف Excel بالحركة اليومية (أرقام العملاء والمبالغ)<br>
+                📌 ثم اضغط 📱 واتساب أو ✉️ رسالة للإرسال
             </div>
         </div>
         
@@ -51,8 +76,7 @@
 
     <script>
         // ========================================
-        // البيانات ثابتة من ملف Excel الذي أرسلته
-        // الأرصدة من ملف PDF (كشف الحساب)
+        // البيانات الثابتة (أسماء، أرقام، أرصدة)
         // ========================================
         
         let customers = [
@@ -69,9 +93,8 @@
             { id: 322, name: "مروان سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 200.00 }
         ];
 
-        // تحميل البيانات المحفوظة (الحركة اليومية فقط)
         function loadData() {
-            const saved = localStorage.getItem('alabed_fixed');
+            const saved = localStorage.getItem('alabed_daily');
             if (saved) {
                 const savedData = JSON.parse(saved);
                 customers.forEach(c => {
@@ -87,19 +110,74 @@
 
         function saveData() {
             const toSave = customers.map(c => ({ id: c.id, debt: c.debt, paid: c.paid }));
-            localStorage.setItem('alabed_fixed', JSON.stringify(toSave));
+            localStorage.setItem('alabed_daily', JSON.stringify(toSave));
         }
 
-        function resetAllMovements() {
-            if (confirm('⚠️ هل تريد إعادة تعيين الحركة اليومية لجميع العملاء؟')) {
+        function downloadTemplate() {
+            const template = "رقم_العميل,الاسم,المبلغ\n6,عبدالله المروسي,2250\n12,عبدالله الحكيمي,-3000\n51,ناصر العتمي,2500\n63,وليد الزماني,-2600\n93,عبدالله شيبان,2400\n110,حسن الطباخ,8050\n146,لطف محمد قاسم,5820\n228,ام براءه,7500\n311,ام محمد ضمانة,3950\n315,محمد نجيب,5200\n322,مروان سيف,200";
+            const blob = new Blob([template], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'daily_movement.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function loadMovementFile() {
+            const file = document.getElementById('movementFile').files[0];
+            if (!file) {
+                alert('❌ الرجاء اختيار ملف Excel');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                let movementsCount = 0;
+                let errorCount = 0;
+                
+                // إعادة تعيين الحركة اليومية لجميع العملاء إلى صفر
                 customers.forEach(c => {
                     c.debt = 0;
                     c.paid = 0;
                 });
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    if (i === 0 && line.includes('رقم')) continue; // تخطي عنوان العمود
+                    
+                    const parts = line.split(',');
+                    if (parts.length >= 3) {
+                        const id = parseInt(parts[0]);
+                        const amount = parseFloat(parts[2]);
+                        
+                        if (!isNaN(id) && !isNaN(amount)) {
+                            const customer = customers.find(c => c.id === id);
+                            if (customer) {
+                                if (amount > 0) {
+                                    customer.debt = amount;
+                                } else if (amount < 0) {
+                                    customer.paid = Math.abs(amount);
+                                }
+                                movementsCount++;
+                            } else {
+                                errorCount++;
+                            }
+                        }
+                    }
+                }
+                
                 saveData();
                 renderTable();
-                alert('✅ تم إعادة تعيين الحركة اليومية');
-            }
+                
+                const statusDiv = document.getElementById('uploadStatus');
+                statusDiv.innerHTML = `<div class="success-msg">✅ تم تحديث ${movementsCount} عميل لديهم حركة يومية<br>${errorCount > 0 ? `⚠️ ${errorCount} عميل غير موجود في قاعدة البيانات` : ''}</div>`;
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+            };
+            reader.readAsText(file, 'UTF-8');
         }
 
         function updateCustomer(index) {
@@ -130,7 +208,6 @@
             } else if (customer.paid > 0) {
                 text = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
             } else {
-                alert('⚠️ لا توجد حركة يومية لهذا العميل');
                 return null;
             }
             
@@ -154,7 +231,6 @@
             const message = createMessage(customer, newTotal);
             if (!message) return;
             
-            // تحديث الرصيد بعد الإرسال
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
@@ -208,7 +284,7 @@
                 const hasMovement = c.debt > 0 || c.paid > 0;
                 html += `
                     <tr style="${hasMovement ? 'background: #fff8e1;' : ''}">
-                        <tr>${c.id}</td>
+                        <td>${c.id}</td>
                         <td style="text-align: right;"><strong>${c.name}</strong></td>
                         <td>${c.phone}</td>
                         <td style="color: #2b8c5e; font-weight: bold;">${c.totalDebt.toLocaleString()} </td>
@@ -224,11 +300,7 @@
             }
             
             html += `</tbody>
-            </table>
-            <div style="margin-top: 15px;">
-                <button class="btn btn-update" onclick="resetAllMovements()" style="background:#6c757d;">🔄 إعادة تعيين الحركة اليومية للجميع</button>
-            </div>`;
-            
+            </table>`;
             container.innerHTML = html;
         }
 
@@ -236,7 +308,8 @@
         window.updateCustomer = updateCustomer;
         window.sendToWhatsApp = sendToWhatsApp;
         window.sendToSMS = sendToSMS;
-        window.resetAllMovements = resetAllMovements;
+        window.loadMovementFile = loadMovementFile;
+        window.downloadTemplate = downloadTemplate;
         
         // تحميل البيانات
         loadData();
