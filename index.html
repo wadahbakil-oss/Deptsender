@@ -22,7 +22,7 @@
         .stats { background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: bold; }
         .import-area { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px dashed #2b8c5e; text-align: center; }
         .import-area input { margin: 10px 0; }
-        .import-area button { background: #FF9800; padding: 10px 25px; }
+        .import-area button { background: #FF9800; padding: 10px 25px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
         .table-wrapper { overflow-x: auto; max-height: 550px; overflow-y: auto; border-radius: 12px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { background: #1e5799; color: white; padding: 12px 8px; position: sticky; top: 0; z-index: 10; }
@@ -33,7 +33,6 @@
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-sms { background: #2196F3; color: white; }
         .btn-update { background: #17a2b8; color: white; }
-        .btn-import { background: #FF9800; color: white; padding: 10px 20px; }
         .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
         .info-note { background: #FFF3E0; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; }
         .highlight { background: #fff8e1; }
@@ -56,8 +55,9 @@
         <div class="card">
             <div class="card-title">📂 استيراد أرصدة من ملف Excel</div>
             <div class="import-area">
-                <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل, الرصيد الجديد</strong></p>
-                <p style="font-size: 12px; color: #666;">مثال: <code>6,435340.07</code></p>
+                <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل والرصيد</strong></p>
+                <p style="font-size: 12px; color: #666;">يدعم تنسيقين: <code>رقم العميل,الرصيد</code> أو <code>الرصيد,رقم العميل</code></p>
+                <p style="font-size: 12px; color: #666;">مثال: <code>6,435340.07</code> أو <code>435340.07,6</code></p>
                 <input type="file" id="excelFile" accept=".csv,.xlsx,.xls">
                 <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة</button>
                 <div id="importStatus"></div>
@@ -83,7 +83,7 @@
                 <strong>📌 تعليمات الاستخدام:</strong><br>
                 • <strong>فاتورة جديدة (+)</strong> = تزيد الرصيد | <strong>سداد (-)</strong> = تقلل الرصيد<br>
                 • بعد إدخال المبالغ، اضغط <strong>💾 تحديث</strong> ثم <strong>📱 واتساب</strong> للإرسال<br>
-                • يمكنك استيراد الأرصدة فقط من ملف Excel (عمودان: رقم العميل, الرصيد)
+                • يمكنك استيراد الأرصدة فقط من ملف Excel
             </div>
         </div>
         
@@ -91,11 +91,7 @@
     </div>
 
     <script>
-        // ========================================
         // البيانات الثابتة (الأسماء وأرقام الهواتف)
-        // تم إدخالها يدوياً من ملفك
-        // ========================================
-        
         let customers = [
             { id: 2, name: "فهمي انور", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 3, name: "فيصل الوصابي", phone: "739453052", debt: 0, paid: 0, totalDebt: 0 },
@@ -419,18 +415,35 @@
                 for (let line of lines) {
                     line = line.trim();
                     if (!line) continue;
-                    const parts = line.split(',');
-                    if (parts.length >= 2) {
-                        const id = parseInt(parts[0]);
-                        const balance = parseFloat(parts[1]);
-                        if (!isNaN(id) && !isNaN(balance)) {
-                            const customer = customers.find(c => c.id === id);
-                            if (customer) {
-                                customer.totalDebt = balance;
-                                imported++;
+                    if (line.includes('رقم') || line.includes('العميل')) continue;
+                    
+                    // تقسيم السطر إلى أجزاء
+                    let parts = line.split(/[ ,\t]+/);
+                    if (parts.length < 2) continue;
+                    
+                    let id = null;
+                    let balance = null;
+                    
+                    for (let p of parts) {
+                        let num = parseFloat(p.replace(/,/g, ''));
+                        if (!isNaN(num) && num !== 0) {
+                            // إذا كان الرقم أقل من 1000، قد يكون رقم عميل
+                            if (num < 1000 && num > 0 && Number.isInteger(num)) {
+                                if (id === null) id = num;
                             } else {
-                                errors++;
+                                if (balance === null) balance = num;
                             }
+                        }
+                    }
+                    
+                    // إذا كان لدينا كلا الرقمين
+                    if (id !== null && balance !== null) {
+                        const customer = customers.find(c => c.id === id);
+                        if (customer) {
+                            customer.totalDebt = balance;
+                            imported++;
+                        } else {
+                            errors++;
                         }
                     }
                 }
@@ -441,9 +454,9 @@
                     updateStats();
                     statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
                 } else {
-                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة. التنسيق المطلوب: رقم العميل, الرصيد</div>';
+                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة</div>';
                 }
-                setTimeout(() => statusDiv.innerHTML = '', 4000);
+                setTimeout(() => statusDiv.innerHTML = '', 5000);
             };
             reader.readAsText(file, 'UTF-8');
         }
@@ -516,6 +529,8 @@
                 const phone = prompt(`📞 رقم هاتف ${customer.name}:`);
                 if (phone) customer.phone = phone.replace(/[^0-9]/g, '');
                 else return;
+                saveMovements();
+                renderTable();
             }
             const newTotal = calculateNewTotal(customer);
             const message = createMessage(customer, newTotal);
@@ -544,6 +559,8 @@
                 const phone = prompt(`📞 رقم هاتف ${customer.name}:`);
                 if (phone) customer.phone = phone.replace(/[^0-9]/g, '');
                 else return;
+                saveMovements();
+                renderTable();
             }
             const newTotal = calculateNewTotal(customer);
             const message = createMessage(customer, newTotal);
@@ -580,9 +597,9 @@
                     <td>${c.id}</td>
                     <td style="text-align:right"><strong>${c.name}</strong></td>
                     <td><input type="text" id="phone_${c.id}" value="${c.phone}" style="width:100px; padding:5px; text-align:center; background:#f9f9f9;" readonly></td>
-                    <td><input type="number" id="balance_${c.id}" value="${c.totalDebt}" step="any" style="width:90px; padding:5px;" class="small-input"></td>
-                    <td><input type="number" id="debt_${c.id}" value="${c.debt}" step="any" style="width:80px; padding:5px; border-color:#e74c3c;" class="small-input"></td>
-                    <td><input type="number" id="paid_${c.id}" value="${c.paid}" step="any" style="width:80px; padding:5px; border-color:#27ae60;" class="small-input"></td>
+                    <td><input type="number" id="balance_${c.id}" value="${c.totalDebt}" step="any" style="width:90px; padding:5px;"></td>
+                    <td><input type="number" id="debt_${c.id}" value="${c.debt}" step="any" style="width:80px; padding:5px; border-color:#e74c3c;"></td>
+                    <td><input type="number" id="paid_${c.id}" value="${c.paid}" step="any" style="width:80px; padding:5px; border-color:#27ae60;"></td>
                     <td style="color:${newTotal<0?'#e74c3c':'#2b8c5e'}; font-weight:bold;">${newTotal.toLocaleString()}</td>
                     <td><button onclick="updateCustomer(${c.id})" class="btn btn-update">💾</button>
                         <button onclick="sendToWhatsApp(${c.id})" class="btn btn-whatsapp">📱</button>
