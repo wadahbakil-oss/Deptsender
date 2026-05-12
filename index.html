@@ -8,71 +8,111 @@
     <title>مرسل الديون - صيدلية العابد</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 20px; }
-        .header h1 { font-size: 24px; }
+        .header h1 { font-size: 28px; }
+        .header p { font-size: 14px; opacity: 0.9; }
         .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #1e5799; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .search-box input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; }
-        .search-box button { padding: 10px 20px; background: #2b8c5e; color: white; border: none; border-radius: 10px; cursor: pointer; }
-        .stats { background: #e3f2fd; padding: 10px; border-radius: 10px; margin-bottom: 15px; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; font-size: 13px; }
-        th { background: #f0f0f0; position: sticky; top: 0; }
-        input.small-input { width: 80px; padding: 5px; text-align: center; border-radius: 6px; border: 1px solid #ddd; }
-        .btn { padding: 5px 10px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin: 2px; }
+        .card-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #1e5799; border-bottom: 3px solid #2b8c5e; padding-bottom: 10px; }
+        .search-box { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; transition: all 0.3s; }
+        .search-box input:focus { outline: none; border-color: #2b8c5e; }
+        .search-box button { padding: 12px 25px; background: #2b8c5e; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
+        .search-box button:hover { transform: scale(1.02); background: #1e6b47; }
+        .stats { background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: bold; color: #1e5799; }
+        .import-area { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px dashed #2b8c5e; text-align: center; }
+        .import-area input { margin: 10px 0; }
+        .import-area button { background: #FF9800; padding: 10px 25px; }
+        .table-wrapper { overflow-x: auto; max-height: 550px; overflow-y: auto; border-radius: 12px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1e5799; color: white; padding: 12px 8px; position: sticky; top: 0; z-index: 10; font-weight: bold; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        tr:hover { background: #f5f5f5; }
+        input.small-input { width: 90px; padding: 6px 8px; text-align: center; border-radius: 8px; border: 1px solid #ddd; font-size: 12px; transition: all 0.2s; }
+        input.small-input:focus { outline: none; border-color: #2b8c5e; box-shadow: 0 0 5px rgba(43,140,94,0.3); }
+        .btn { padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; margin: 2px; transition: all 0.2s; }
+        .btn:hover { transform: scale(1.03); opacity: 0.9; }
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-sms { background: #2196F3; color: white; }
         .btn-update { background: #17a2b8; color: white; }
+        .btn-import { background: #FF9800; color: white; padding: 10px 20px; }
         .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
-        .info-note { background: #FFF3E0; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; }
+        .info-note { background: #FFF3E0; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; border-right: 4px solid #FF9800; }
         .highlight { background: #fff8e1; }
-        @media (max-width: 800px) {
-            th, td { font-size: 11px; padding: 4px; }
-            .small-input { width: 60px; font-size: 10px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-right: 5px; }
+        .badge-debt { background: #e74c3c; color: white; }
+        .badge-paid { background: #27ae60; color: white; }
+        @media (max-width: 1000px) {
+            .container { padding: 0 10px; }
+            .card { padding: 15px; }
+            th, td { font-size: 11px; padding: 5px; }
+            .small-input { width: 65px; font-size: 10px; padding: 3px; }
             .btn { padding: 3px 6px; font-size: 10px; }
         }
-        .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+        .btn-reset { background: #6c757d; color: white; }
+        .success-msg { background: #d4edda; color: #155724; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; border-right: 4px solid #28a745; }
+        .error-msg { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; border-right: 4px solid #dc3545; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🏥 صيدلية العابد</h1>
-            <p>نظام إدارة وإرسال الديون</p>
+            <p>نظام إدارة وإرسال الديون | تعز - الحوبان - مدخل البريد</p>
         </div>
         
+        <!-- استيراد الرصيد من ملف Excel -->
+        <div class="card">
+            <div class="card-title">📂 استيراد أرصدة من ملف Excel</div>
+            <div class="import-area">
+                <p style="margin-bottom: 10px;">📊 قم برفع ملف Excel (CSV) يحتوي على: <strong>رقم العميل, الاسم, الرصيد النهائي</strong></p>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">مثال: 6,عبدالله المروسي,435340.07</p>
+                <input type="file" id="excelFile" accept=".csv,.xlsx,.xls">
+                <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة</button>
+                <div id="importStatus"></div>
+            </div>
+        </div>
+        
+        <!-- البحث -->
         <div class="card">
             <div class="card-title">🔍 بحث سريع</div>
             <div class="search-box">
                 <input type="text" id="searchId" placeholder="بحث برقم العميل" onkeyup="searchCustomer()">
                 <input type="text" id="searchName" placeholder="بحث باسم العميل" onkeyup="searchCustomer()">
-                <button onclick="clearSearch()">مسح</button>
+                <button onclick="clearSearch()">🗑️ مسح البحث</button>
             </div>
             <div class="stats" id="stats"></div>
         </div>
         
+        <!-- جدول العملاء -->
         <div class="card">
             <div class="card-title">👥 العملاء والحركة اليومية</div>
             <div class="table-wrapper">
                 <div id="customersTable"></div>
             </div>
             <div class="info-note">
-                📌 الأعمدة الثابتة: رقم العميل، الاسم، رقم الهاتف (تم تنظيفه تلقائياً)<br>
-                📌 المبلغ الموجب = فاتورة جديدة (تزيد الرصيد)، المبلغ السالب = سداد (تقلل الرصيد)<br>
-                📌 أدخل المبلغ والرصيد الجديد لكل عميل، ثم اضغط "تحديث" ثم "واتساب" للإرسال
+                <strong>📌 تعليمات الاستخدام:</strong><br>
+                • <strong>الأعمدة الثابتة:</strong> رقم العميل، الاسم، رقم الجوال (لا تتغير)<br>
+                • <strong>المبلغ الموجب</strong> = فاتورة جديدة (تزيد الرصيد) | <strong>المبلغ السالب</strong> = سداد (تقلل الرصيد)<br>
+                • بعد إدخال المبلغ والرصيد الجديد، اضغط <strong>💾 تحديث</strong> ثم <strong>📱 واتساب</strong> للإرسال<br>
+                • يمكنك استيراد الأرصدة من ملف Excel في أي وقت
             </div>
         </div>
         
-        <div class="footer">نظام مرسل الديون | صيدلية العابد</div>
+        <div class="footer">
+            نظام مرسل الديون | صيدلية العابد | تصميم مخصص لإدارة الديون اليومية
+        </div>
     </div>
 
     <script>
         // ========================================
-        // بيانات العملاء الثابتة (321 عميل)
-        // تم تنظيف أرقام الهواتف: إزالة الشرطات، المسافات، +967، الأقواس
+        // قاعدة البيانات الثابتة (321 عميل)
         // ========================================
         
         const fixedCustomers = [
@@ -254,7 +294,7 @@
             { id: 209, name: "عادل حسن بالغيث", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 210, name: "ام ابراهيم الوصابي", phone: "770843608", debt: 0, paid: 0, totalDebt: 0 },
             { id: 211, name: "نجيب الصامت", phone: "772629955", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 214, name: "نبيل الطباخ", phone: "967773743060", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 214, name: "نبيل الطباخ", phone: "773743060", debt: 0, paid: 0, totalDebt: 0 },
             { id: 215, name: "عبدة غالب العتابي", phone: "777265467", debt: 0, paid: 0, totalDebt: 0 },
             { id: 217, name: "الوالد قايد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 218, name: "ام ملاك", phone: "", debt: 0, paid: 0, totalDebt: 0 },
@@ -289,11 +329,11 @@
             { id: 263, name: "عبدالجبار الصبري", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 264, name: "فهد عبده حسين", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 266, name: "نائل البشيري", phone: "736394007", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 270, name: "كاظم الوكلاء", phone: "967739819674", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 270, name: "كاظم الوكلاء", phone: "739819674", debt: 0, paid: 0, totalDebt: 0 },
             { id: 271, name: "نوافل رشاد جار لطف", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 275, name: "انس الوافي", phone: "713719948", debt: 0, paid: 0, totalDebt: 0 },
             { id: 277, name: "محمد احمد الوصابي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 278, name: "ام عدي", phone: "967739497152", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 278, name: "ام عدي", phone: "739497152", debt: 0, paid: 0, totalDebt: 0 },
             { id: 279, name: "سيف الشرعبي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 280, name: "رضوان داوود", phone: "777087271", debt: 0, paid: 0, totalDebt: 0 },
             { id: 281, name: "باسم الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
@@ -339,40 +379,112 @@
             { id: 321, name: "وائل بكبل", phone: "773645345", debt: 0, paid: 0, totalDebt: 0 }
         ];
 
-        // تحويل إلى مصفوفة قابلة للتعديل
         let customers = [];
 
         function loadData() {
-            const saved = localStorage.getItem('alabed_movements');
-            if (saved) {
-                const savedData = JSON.parse(saved);
-                // دمج البيانات المحفوظة (الحركة اليومية فقط) مع البيانات الثابتة
-                customers = fixedCustomers.map(fixed => {
-                    const savedCustomer = savedData.find(s => s.id === fixed.id);
-                    return {
-                        ...fixed,
-                        debt: savedCustomer ? savedCustomer.debt : 0,
-                        paid: savedCustomer ? savedCustomer.paid : 0,
-                        totalDebt: savedCustomer ? savedCustomer.totalDebt : 0
-                    };
+            const savedMovements = localStorage.getItem('alabed_movements');
+            const savedBalances = localStorage.getItem('alabed_balances');
+            
+            customers = JSON.parse(JSON.stringify(fixedCustomers));
+            
+            // استعادة الحركة اليومية
+            if (savedMovements) {
+                const movements = JSON.parse(savedMovements);
+                customers.forEach(c => {
+                    const m = movements.find(mv => mv.id === c.id);
+                    if (m) {
+                        c.debt = m.debt || 0;
+                        c.paid = m.paid || 0;
+                    }
                 });
-            } else {
-                customers = JSON.parse(JSON.stringify(fixedCustomers));
             }
+            
+            // استعادة الأرصدة
+            if (savedBalances) {
+                const balances = JSON.parse(savedBalances);
+                customers.forEach(c => {
+                    const b = balances.find(bal => bal.id === c.id);
+                    if (b && b.totalDebt !== undefined) {
+                        c.totalDebt = b.totalDebt;
+                    }
+                });
+            }
+            
             renderTable();
             updateStats();
         }
 
-        function saveData() {
-            const toSave = customers.map(c => ({ id: c.id, debt: c.debt, paid: c.paid, totalDebt: c.totalDebt }));
+        function saveMovements() {
+            const toSave = customers.map(c => ({ id: c.id, debt: c.debt, paid: c.paid }));
             localStorage.setItem('alabed_movements', JSON.stringify(toSave));
         }
 
+        function saveBalances() {
+            const toSave = customers.map(c => ({ id: c.id, totalDebt: c.totalDebt }));
+            localStorage.setItem('alabed_balances', JSON.stringify(toSave));
+        }
+
         function updateStats() {
-            const statsDiv = document.getElementById('stats');
             const totalCustomers = customers.length;
             const hasMovement = customers.filter(c => c.debt > 0 || c.paid > 0).length;
-            statsDiv.innerHTML = `📊 إجمالي العملاء: ${totalCustomers} | 🔴 لديهم حركة يومية: ${hasMovement}`;
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = `📊 <strong>إجمالي العملاء:</strong> ${totalCustomers} &nbsp;|&nbsp; 🔴 <strong>لديهم حركة يومية:</strong> ${hasMovement} &nbsp;|&nbsp; 💰 <strong>إجمالي الأرصدة المحدثة:</strong> ${customers.filter(c => c.totalDebt > 0).length}`;
+        }
+
+        function importBalances() {
+            const file = document.getElementById('excelFile').files[0];
+            if (!file) {
+                alert('❌ الرجاء اختيار ملف Excel');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('importStatus');
+            statusDiv.innerHTML = '<div class="success-msg">⏳ جاري قراءة الملف...</div>';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                let importedCount = 0;
+                let notFoundCount = 0;
+                let errors = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    if (i === 0 && (line.includes('رقم') || line.includes('id'))) continue;
+                    
+                    const parts = line.split(',');
+                    if (parts.length >= 3) {
+                        const id = parseInt(parts[0]);
+                        const name = parts[1].trim();
+                        const balance = parseFloat(parts[2]);
+                        
+                        if (!isNaN(id) && !isNaN(balance)) {
+                            const customer = customers.find(c => c.id === id);
+                            if (customer) {
+                                customer.totalDebt = balance;
+                                importedCount++;
+                            } else {
+                                notFoundCount++;
+                                errors.push(`الرقم ${id} غير موجود`);
+                            }
+                        }
+                    }
+                }
+                
+                if (importedCount > 0) {
+                    saveBalances();
+                    renderTable();
+                    updateStats();
+                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${importedCount} رصيد بنجاح${notFoundCount > 0 ? ` (${notFoundCount} رقم غير موجود)` : ''}</div>`;
+                } else {
+                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة. تأكد من التنسيق: رقم,الاسم,الرصيد</div>';
+                }
+                
+                setTimeout(() => statusDiv.innerHTML = '', 5000);
+            };
+            reader.readAsText(file, 'UTF-8');
         }
 
         function clearSearch() {
@@ -402,11 +514,12 @@
             const paidInput = document.getElementById(`paid_${id}`);
             const balanceInput = document.getElementById(`balance_${id}`);
             
-            customer.debt = parseFloat(debtInput.value) || 0;
-            customer.paid = parseFloat(paidInput.value) || 0;
+            if (debtInput) customer.debt = parseFloat(debtInput.value) || 0;
+            if (paidInput) customer.paid = parseFloat(paidInput.value) || 0;
             if (balanceInput) customer.totalDebt = parseFloat(balanceInput.value) || 0;
             
-            saveData();
+            saveMovements();
+            saveBalances();
             renderTable();
             updateStats();
             alert(`✅ تم تحديث ${customer.name}`);
@@ -451,11 +564,12 @@
             
             if (!customer.phone || customer.phone.length < 9) {
                 const phone = prompt(`📞 أدخل رقم هاتف ${customer.name}:`);
-                if (phone) {
+                if (phone && phone.length >= 9) {
                     customer.phone = phone.replace(/[^0-9]/g, '');
-                    saveData();
+                    saveMovements();
                     renderTable();
                 } else {
+                    alert('❌ رقم الهاتف غير صالح');
                     return;
                 }
             }
@@ -467,7 +581,8 @@
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
-            saveData();
+            saveMovements();
+            saveBalances();
             renderTable();
             updateStats();
             
@@ -486,11 +601,12 @@
             
             if (!customer.phone || customer.phone.length < 9) {
                 const phone = prompt(`📞 أدخل رقم هاتف ${customer.name}:`);
-                if (phone) {
+                if (phone && phone.length >= 9) {
                     customer.phone = phone.replace(/[^0-9]/g, '');
-                    saveData();
+                    saveMovements();
                     renderTable();
                 } else {
+                    alert('❌ رقم الهاتف غير صالح');
                     return;
                 }
             }
@@ -502,7 +618,8 @@
             customer.totalDebt = newTotal;
             customer.debt = 0;
             customer.paid = 0;
-            saveData();
+            saveMovements();
+            saveBalances();
             renderTable();
             updateStats();
             
@@ -515,7 +632,7 @@
             const list = filteredList || customers;
             
             if (list.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">📭 لا يوجد عملاء</div>';
+                container.innerHTML = '<div style="text-align:center; padding:60px; color:#999;">📭 لا يوجد عملاء مطابقين للبحث</div>';
                 return;
             }
             
@@ -524,14 +641,14 @@
             let html = `能
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>العميل</th>
-                        <th>رقم الجوال</th>
-                        <th>الرصيد الحالي</th>
-                        <th>فاتورة جديدة</th>
-                        <th>سداد</th>
-                        <th>الرصيد بعد الحركة</th>
-                        <th>إجراءات</th>
+                        <th style="width:50px">#</th>
+                        <th style="min-width:150px">اسم العميل</th>
+                        <th style="width:110px">رقم الجوال</th>
+                        <th style="width:100px">الرصيد الحالي</th>
+                        <th style="width:90px">فاتورة جديدة (+) </th>
+                        <th style="width:90px">سداد (-) </th>
+                        <th style="width:100px">الرصيد بعد الحركة</th>
+                        <th style="width:130px">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -543,23 +660,23 @@
                 
                 html += `
                     <tr class="${hasMovement ? 'highlight' : ''}">
-                        <td>${c.id}</td>
-                        <td style="text-align: right;"><strong>${c.name}</strong></td>
-                        <td><input type="tel" id="phone_${c.id}" value="${c.phone}" placeholder="رقم الجوال" style="width: 100px; padding: 5px; text-align: center;" class="small-input" readonly></td>
-                        <td><input type="number" id="balance_${c.id}" value="${c.totalDebt}" step="any" style="width: 90px; padding: 5px; text-align: center;" class="small-input"></td>
-                        <td><input type="number" id="debt_${c.id}" value="${c.debt}" placeholder="0" step="any" style="width: 70px; border-color: #e74c3c;" class="small-input"></td>
-                        <td><input type="number" id="paid_${c.id}" value="${c.paid}" placeholder="0" step="any" style="width: 70px; border-color: #27ae60;" class="small-input"></td>
-                        <td style="color: ${newTotal < 0 ? '#e74c3c' : '#2b8c5e'}; font-weight: bold;">${newTotal.toLocaleString()} </td>
+                        <td><strong>${c.id}</strong></td>
+                        <td style="text-align: right;"><strong>${c.name}</strong> <br>${hasMovement ? '<span class="badge badge-debt">🔴</span>' : ''}</td>
+                        <td><input type="text" id="phone_${c.id}" value="${c.phone}" placeholder="رقم الجوال" style="width: 100px; padding: 6px; text-align: center; border-radius: 6px; border: 1px solid #ddd; background:#f9f9f9;" readonly></td>
+                        <td><input type="number" id="balance_${c.id}" value="${c.totalDebt}" step="any" style="width: 95px; padding: 6px; text-align: center; border-radius: 6px; border: 1px solid #ddd;" class="small-input"></td>
+                        <td><input type="number" id="debt_${c.id}" value="${c.debt}" placeholder="0" step="any" style="width: 85px; padding: 6px; text-align: center; border-radius: 6px; border: 1px solid #e74c3c;"></td>
+                        <td><input type="number" id="paid_${c.id}" value="${c.paid}" placeholder="0" step="any" style="width: 85px; padding: 6px; text-align: center; border-radius: 6px; border: 1px solid #27ae60;"></td>
+                        <td style="color: ${newTotal < 0 ? '#e74c3c' : '#2b8c5e'}; font-weight: bold; font-size: 14px;">${newTotal.toLocaleString()} </td>
                         <td>
                             <button onclick="updateCustomer(${c.id})" class="btn btn-update" title="تحديث">💾</button>
                             <button onclick="sendToWhatsApp(${c.id})" class="btn btn-whatsapp" title="واتساب">📱</button>
-                            <button onclick="sendToSMS(${c.id})" class="btn btn-sms" title="رسالة">✉️</button>
+                            <button onclick="sendToSMS(${c.id})" class="btn btn-sms" title="رسالة نصية">✉️</button>
                         </td>
                     </tr>
                 `;
             }
             
-            html += `</tbody><table>`;
+            html += `</tbody>点心`;
             container.innerHTML = html;
         }
 
@@ -569,6 +686,7 @@
         window.sendToSMS = sendToSMS;
         window.clearSearch = clearSearch;
         window.searchCustomer = searchCustomer;
+        window.importBalances = importBalances;
         
         loadData();
     </script>
