@@ -58,8 +58,9 @@
                 <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل والرصيد</strong></p>
                 <p style="font-size: 12px; color: #666;">يدعم تنسيقين: <code>رقم العميل,الرصيد</code> أو <code>الرصيد,رقم العميل</code></p>
                 <p style="font-size: 12px; color: #666;">مثال: <code>6,435340.07</code> أو <code>435340.07,6</code></p>
+                <p style="font-size: 12px; color: #e74c3c;">⚠️ تحذير: استيراد ملف جديد سيحذف جميع الأرصدة السابقة ويستبدلها</p>
                 <input type="file" id="excelFile" accept=".csv,.xlsx,.xls">
-                <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة</button>
+                <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة (استبدال كامل)</button>
                 <div id="importStatus"></div>
             </div>
         </div>
@@ -83,7 +84,7 @@
                 <strong>📌 تعليمات الاستخدام:</strong><br>
                 • <strong>فاتورة جديدة (+)</strong> = تزيد الرصيد | <strong>سداد (-)</strong> = تقلل الرصيد<br>
                 • بعد إدخال المبالغ، اضغط <strong>💾 تحديث</strong> ثم <strong>📱 واتساب</strong> للإرسال<br>
-                • يمكنك استيراد الأرصدة فقط من ملف Excel
+                • استيراد ملف جديد <strong>يحذف الأرصدة القديمة</strong> ويضع الجديدة
             </div>
         </div>
         
@@ -409,6 +410,12 @@
             reader.onload = function(e) {
                 const text = e.target.result;
                 const lines = text.split('\n');
+                
+                // ✅ أولاً: حذف جميع الأرصدة الحالية
+                customers.forEach(c => {
+                    c.totalDebt = 0;
+                });
+                
                 let imported = 0;
                 let errors = 0;
                 
@@ -427,7 +434,6 @@
                     for (let p of parts) {
                         let num = parseFloat(p.replace(/,/g, ''));
                         if (!isNaN(num) && num !== 0) {
-                            // إذا كان الرقم أقل من 1000، قد يكون رقم عميل
                             if (num < 1000 && num > 0 && Number.isInteger(num)) {
                                 if (id === null) id = num;
                             } else {
@@ -436,7 +442,6 @@
                         }
                     }
                     
-                    // إذا كان لدينا كلا الرقمين
                     if (id !== null && balance !== null) {
                         const customer = customers.find(c => c.id === id);
                         if (customer) {
@@ -452,7 +457,7 @@
                     saveBalances();
                     renderTable();
                     updateStats();
-                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
+                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح (تم حذف الأرصدة القديمة)${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
                 } else {
                     statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة</div>';
                 }
