@@ -55,9 +55,8 @@
         <div class="card">
             <div class="card-title">📂 استيراد أرصدة من ملف Excel</div>
             <div class="import-area">
-                <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل والرصيد</strong></p>
-                <p style="font-size: 12px; color: #666;">يدعم تنسيقين: <code>رقم العميل,الرصيد</code> أو <code>الرصيد,رقم العميل</code></p>
-                <p style="font-size: 12px; color: #666;">مثال: <code>6,435340.07</code> أو <code>435340.07,6</code></p>
+                <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل, اسم العميل, الرصيد</strong></p>
+                <p style="font-size: 12px; color: #666;">مثال: <code>6,عبدالله المروسي,435340.07</code></p>
                 <p style="font-size: 12px; color: #e74c3c;">⚠️ تحذير: استيراد ملف جديد سيحذف جميع الأرصدة السابقة ويستبدلها</p>
                 <input type="file" id="excelFile" accept=".csv,.xlsx,.xls">
                 <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة (استبدال كامل)</button>
@@ -92,7 +91,7 @@
     </div>
 
     <script>
-        // البيانات الثابتة (الأسماء وأرقام الهواتف)
+        // البيانات الثابتة (الأسماء وأرقام الهواتف من ملفك)
         let customers = [
             { id: 2, name: "فهمي انور", phone: "", debt: 0, paid: 0, totalDebt: 0 },
             { id: 3, name: "فيصل الوصابي", phone: "739453052", debt: 0, paid: 0, totalDebt: 0 },
@@ -127,236 +126,9 @@
             { id: 32, name: "منير البقالة", phone: "770227580", debt: 0, paid: 0, totalDebt: 0 },
             { id: 33, name: "وداد شركة اميرالدين", phone: "776585052", debt: 0, paid: 0, totalDebt: 0 },
             { id: 34, name: "صالح الزماني", phone: "774243124", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 35, name: "محمد صبحي", phone: "733778860", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 36, name: "اياد القباطي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 37, name: "سامي الابيض خ", phone: "730113577", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 38, name: "علي الطاحون", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 39, name: "عمار عبده", phone: "775253185", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 40, name: "رهيبة اخت محمد صادق", phone: "771345718", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 41, name: "ام محمد ص ام رهام", phone: "734953616", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 42, name: "هيثم السامعي", phone: "775908469", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 43, name: "جواد العريقي", phone: "735439857", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 44, name: "عمر محمد عبدالله المخط", phone: "771924503", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 45, name: "محمد السامعي الانيق", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 46, name: "عمران العاقل", phone: "772565384", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 47, name: "حامد القدسي", phone: "773838023", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 48, name: "عدنان المقطري", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 49, name: "عبدالفتاح المسافر", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 50, name: "ماجد الوصابي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 51, name: "ناصر العتمي", phone: "736379838", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 52, name: "فواد القباطي الادوات المنزلية", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 53, name: "توفيق الطلي", phone: "711996552", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 54, name: "امين قاسم عبدة", phone: "717176722", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 55, name: "زكي الخياط", phone: "735776164", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 58, name: "ام ربيع الدكتور", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 60, name: "هاني الاثوري", phone: "775867943", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 61, name: "منير الحميري", phone: "734200897", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 62, name: "ايمن الوكلا", phone: "772900755", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 63, name: "وليد الزماني", phone: "777614827", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 64, name: "بشير القدسي", phone: "777484882", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 65, name: "فهمي العريقي الخياط", phone: "735430363", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 66, name: "محمد حمود النقيل", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 67, name: "مويد بيت طاهر", phone: "775389495", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 68, name: "ام التوم", phone: "779660862", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 69, name: "حسن ابو صلاح", phone: "770012927", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 70, name: "محمد الشيخ", phone: "770739977", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 71, name: "عفيف بشر", phone: "774452030", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 72, name: "يزيد الشيخ", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 73, name: "عبدالكريم الجرموزي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 74, name: "ع مالك زاهر", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 75, name: "احمد مراد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 77, name: "محمد فؤاد", phone: "775035629", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 78, name: "عبدالله الوصابي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 79, name: "رضون صادق", phone: "772993070", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 80, name: "ابراهيم طاهر", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 82, name: "عزام العبسي", phone: "778304041", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 83, name: "حمزه الشرماني", phone: "737114217", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 84, name: "نصر باحميدو", phone: "770012252", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 85, name: "طارق عبده محمد", phone: "773235160", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 86, name: "ام عبدالملك يحي مظهر", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 87, name: "نبيل البهارات", phone: "773843451", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 88, name: "صيدلية الفتح", phone: "777112688", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 90, name: "محمد الشرعبي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 92, name: "كمال الاصبحي", phone: "771550356", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 93, name: "عبدالله شيبان", phone: "777458368", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 94, name: "ع عصام الشرعبي", phone: "717601593", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 95, name: "المحامي عبدالرحمن", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 96, name: "كارم القباطي", phone: "777519234", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 97, name: "مروان الغرباني", phone: "775935667", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 98, name: "عبدالجليل التركي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 100, name: "حنين موظفة عيادة الصامت", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 101, name: "عبدالله فارع قاسم", phone: "715182295", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 102, name: "امين القدسي", phone: "772900755", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 103, name: "بسام الضباب", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 105, name: "صيدلية الباشا", phone: "733227781", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 106, name: "احمد الزماني", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 108, name: "عم الدكتور مختار", phone: "777165316", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 109, name: "بسام الشرماني", phone: "772646060", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 110, name: "حسن الطباخ", phone: "770370211", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 111, name: "صيدليه طربوش", phone: "738353799", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 112, name: "ياسين الصبري", phone: "775621971", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 113, name: "ع سليم ميثاق", phone: "737452036", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 114, name: "ام شادي", phone: "713527337", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 115, name: "هشام الحكيمي", phone: "770464506", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 116, name: "مصاريف نثريه دكتور منصور", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 118, name: "الدكتور محمد هزاع", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 120, name: "محمد القرمي", phone: "770994084", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 121, name: "ع محمد صادق العريقي", phone: "780002329", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 122, name: "ام محمد الرضا", phone: "773399436", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 123, name: "مروان صادق", phone: "735541156", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 124, name: "عبدالله صادق", phone: "773253822", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 126, name: "ام الحسن والحسين", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 127, name: "صيدليه الشيخ", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 128, name: "ام بيان اخت وداد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 129, name: "ام محمد نبيل اخت داد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 130, name: "محمد الاغبري الوكلاء", phone: "778088898", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 131, name: "المطوع الفاشي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 132, name: "عزالدين عبده", phone: "773839442", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 133, name: "خلدون الصبري", phone: "771119256", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 135, name: "الدكتورة مريم", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 136, name: "وضاح السامعي", phone: "739926811", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 137, name: "وضاح سعيد ص وضاح", phone: "735783162", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 143, name: "امين الوصابي", phone: "775942042", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 144, name: "يسري البرنس", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 146, name: "لطف محمد قاسم", phone: "777206743", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 147, name: "بيشر قايد", phone: "715424089", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 148, name: "الدكتورة ريما", phone: "739351980", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 149, name: "علي عبدالله عثمان", phone: "772768452", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 152, name: "ام محمد ماجد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 153, name: "ليلي مخارش", phone: "734884921", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 155, name: "عيادة الاسنان دنتال كير", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 156, name: "ام مريا", phone: "730427792", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 158, name: "عمران مهيبوب", phone: "775528278", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 160, name: "عفاف العريقي", phone: "775513997", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 161, name: "مصطفى خال الدكتور", phone: "735131246", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 162, name: "سامي عبدالمجيد صاحب كارم", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 164, name: "ع مهند", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 165, name: "عمير الصلوي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 166, name: "صياد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 167, name: "منيف القباطي", phone: "771874575", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 168, name: "رافت العبسي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 169, name: "ع بليغ محمد احمد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 170, name: "يحي الزبيري", phone: "774733512", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 171, name: "فواد حسان", phone: "735533992", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 172, name: "ع محمد خالد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 173, name: "ام عبود", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 174, name: "ع سمير", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 176, name: "ضمانة الدكتور", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 177, name: "درهم خالد", phone: "771179177", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 178, name: "بنت القباطي", phone: "772575306", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 179, name: "جلال العتابي", phone: "716443677", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 180, name: "محمود الصبري", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 181, name: "روف العبسي", phone: "770455282", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 182, name: "عمار الكبودي", phone: "739047810", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 183, name: "منصر فني اسنان", phone: "739504319", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 184, name: "عبدالله حسن", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 186, name: "عبداللطيف فرحان", phone: "777626191", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 187, name: "شعيب الزبيدي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 188, name: "جوهلر الجعيدي", phone: "779659909", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 189, name: "جمال ناجي", phone: "778080370", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 190, name: "احمد السيد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 191, name: "محمد عبدة صالح", phone: "774365858", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 192, name: "عبدالله محسن", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 194, name: "بليغ عبدالفتاح", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 195, name: "محمد الكهربائي", phone: "777451544", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 196, name: "مراد قايد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 197, name: "فارس احمد شايف", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 198, name: "العاقل صاحب هارون", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 202, name: "شوقي الكهربائي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 204, name: "محمد احمد قاسم", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 205, name: "عبدالشيخ", phone: "770068713", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 206, name: "عمر العامري الزيلعي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 207, name: "ابو فارس الحكيمي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 208, name: "جمال جسار", phone: "777942648", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 209, name: "عادل حسن بالغيث", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 210, name: "ام ابراهيم الوصابي", phone: "770843608", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 211, name: "نجيب الصامت", phone: "772629955", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 214, name: "نبيل الطباخ", phone: "773743060", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 215, name: "عبدة غالب العتابي", phone: "777265467", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 217, name: "الوالد قايد", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 218, name: "ام ملاك", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 219, name: "ام محمد عبده", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 220, name: "فواد الطاحون", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 221, name: "بدر الجنيد", phone: "734738162", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 222, name: "عاصم النفس", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 223, name: "مظهر الحبيبي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 224, name: "عبدالرحمن الشرعبي بسطه", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 225, name: "عبدالحكيم الشرعبي", phone: "774390850", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 226, name: "فواد الشرعبي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 227, name: "هيثم الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 228, name: "ام براءه", phone: "735718544", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 229, name: "بسام الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 230, name: "غازي الشرفي", phone: "778072948", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 231, name: "مختار البوالط", phone: "777404047", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 232, name: "علي القدسي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 233, name: "خالد احمد مثنى", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 234, name: "ماجد المقوت", phone: "774147703", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 235, name: "عبدالكريم الكوفيه", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 236, name: "عبدالغني الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 238, name: "ايناس اخت ام ماريا", phone: "773473140", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 239, name: "ام جابر", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 240, name: "اختيار سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 241, name: "ام عمار", phone: "736456288", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 242, name: "محمد امين راجح", phone: "774945642", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 247, name: "عماد السامعي الطاحون", phone: "733387523", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 250, name: "صلاح الوصابي", phone: "738547672", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 252, name: "نواف الشميري", phone: "770990996", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 253, name: "يحي عبدالحكيم", phone: "774613137", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 258, name: "احمد فواد الجنتيل", phone: "774999773", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 263, name: "عبدالجبار الصبري", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 264, name: "فهد عبده حسين", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 266, name: "نائل البشيري", phone: "736394007", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 270, name: "كاظم الوكلاء", phone: "739819674", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 271, name: "نوافل رشاد جار لطف", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 275, name: "انس الوافي", phone: "713719948", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 277, name: "محمد احمد الوصابي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 278, name: "ام عدي", phone: "739497152", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 279, name: "سيف الشرعبي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 280, name: "رضوان داوود", phone: "777087271", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 281, name: "باسم الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 282, name: "زياد امين راجح", phone: "770454903", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 283, name: "ام انس ممرضه منصور السامعي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 284, name: "ناجي الحوباني", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 285, name: "فواز حسن الطباخ", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 286, name: "11111", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 287, name: "عمي عبده صالح", phone: "771443842", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 288, name: "وضاح بكيل", phone: "774410166", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 289, name: "ام حسام استاذه", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 290, name: "علي حسن القمر", phone: "711265000", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 291, name: "عدنان الحالمي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 292, name: "فكري تابع الشرعبي", phone: "777946646", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 293, name: "معاذ القمر", phone: "777051348", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 294, name: "ام قصي", phone: "776365022", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 295, name: "ع عبدالعزيز جارات ام براءه", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 296, name: "عطاء الطويل", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 297, name: "زكريا القباطي", phone: "738209538", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 298, name: "حبيب احمد قايد المروسي", phone: "772073336", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 299, name: "بغداد رشاد", phone: "730523120", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 300, name: "عمر القياطي السلطان", phone: "770565050", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 301, name: "منصور السوادي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 302, name: "الزوقري", phone: "736734185", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 303, name: "يحي الدبعي الخياط", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 304, name: "ام هند ع الوصابي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 305, name: "ام محمد الاكزيما", phone: "730348090", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 306, name: "وليد محمد علي وضاح", phone: "733608583", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 307, name: "خالد الفخري", phone: "772898474", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 308, name: "اخت ام شدى", phone: "77373631", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 309, name: "الخطيب", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 310, name: "طه المروسي", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 311, name: "ام محمد ضمانة اختيار", phone: "774923011", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 312, name: "صلاح معمل اسنان النخبة", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 313, name: "نبيل السامعي جار د منصور", phone: "734146370", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 314, name: "محمد مختار القباطي نشوة", phone: "730208575", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 315, name: "محمد نجيب صاحب البطاط", phone: "733736264", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 316, name: "ام عبدالله شعلان", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 317, name: "ام انس عائشة", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 318, name: "صادق القباطي كهرباء", phone: "737149434", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 319, name: "بكيل سالم", phone: "735272710", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 320, name: "ص زيكو", phone: "", debt: 0, paid: 0, totalDebt: 0 },
-            { id: 321, name: "وائل بكبل", phone: "773645345", debt: 0, paid: 0, totalDebt: 0 }
+            { id: 35, name: "محمد صبحي", phone: "733778860", debt: 0, paid: 0, totalDebt: 0 }
         ];
 
-        // تحميل البيانات المحفوظة
         function loadData() {
             const savedMovements = localStorage.getItem('alabed_movements_final');
             const savedBalances = localStorage.getItem('alabed_balances_final');
@@ -411,34 +183,44 @@
                 const text = e.target.result;
                 const lines = text.split('\n');
                 
-                // ✅ أولاً: حذف جميع الأرصدة الحالية
+                // حذف جميع الأرصدة الحالية
                 customers.forEach(c => {
                     c.totalDebt = 0;
                 });
                 
                 let imported = 0;
                 let errors = 0;
+                let debugInfo = [];
                 
                 for (let line of lines) {
                     line = line.trim();
                     if (!line) continue;
                     if (line.includes('رقم') || line.includes('العميل')) continue;
                     
-                    // تقسيم السطر إلى أجزاء
+                    // تقسيم السطر إلى أجزاء (بفاصلة أو مسافة أو تبويب)
                     let parts = line.split(/[ ,\t]+/);
                     if (parts.length < 2) continue;
                     
                     let id = null;
                     let balance = null;
+                    let name = "";
                     
                     for (let p of parts) {
-                        let num = parseFloat(p.replace(/,/g, ''));
+                        let cleanNum = p.replace(/,/g, '').replace(/[()]/g, '').trim();
+                        let num = parseFloat(cleanNum);
+                        
                         if (!isNaN(num) && num !== 0) {
-                            if (num < 1000 && num > 0 && Number.isInteger(num)) {
+                            // الرقم الصحيح الصغير (أقل من 1000) غالباً هو رقم العميل
+                            if (Number.isInteger(num) && num < 1000 && num > 0) {
                                 if (id === null) id = num;
-                            } else {
-                                if (balance === null) balance = num;
+                            } 
+                            // أي رقم آخر هو الرصيد (كبير كان أم صغير)
+                            else if (balance === null) {
+                                balance = num;
                             }
+                        } else if (p.match(/[أ-ي]/) && name === "") {
+                            // إذا كان النص يحتوي على أحرف عربية فهو الاسم
+                            name = p;
                         }
                     }
                     
@@ -447,6 +229,7 @@
                         if (customer) {
                             customer.totalDebt = balance;
                             imported++;
+                            debugInfo.push(`${id}=${balance}`);
                         } else {
                             errors++;
                         }
@@ -457,11 +240,11 @@
                     saveBalances();
                     renderTable();
                     updateStats();
-                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح (تم حذف الأرصدة القديمة)${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
+                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح (تم حذف الأرصدة القديمة)${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}<br><small>${debugInfo.join(' | ')}</small></div>`;
                 } else {
-                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة</div>';
+                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة. تأكد من التنسيق: رقم العميل, اسم العميل, الرصيد</div>';
                 }
-                setTimeout(() => statusDiv.innerHTML = '', 5000);
+                setTimeout(() => statusDiv.innerHTML = '', 8000);
             };
             reader.readAsText(file, 'UTF-8');
         }
