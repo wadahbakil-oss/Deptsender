@@ -10,7 +10,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 700px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 20px; }
         .header h1 { font-size: 24px; }
         .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -32,12 +32,10 @@
         .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
         .input-row { display: flex; gap: 10px; margin: 10px 0; }
         .input-row input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; margin-right: 8px; }
-        .badge-debt { background: #e74c3c; color: white; }
-        .badge-paid { background: #27ae60; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; font-size: 13px; }
         th { background: #f0f0f0; }
+        input.small-input { width: 80px; padding: 5px; text-align: center; }
     </style>
 </head>
 <body>
@@ -53,8 +51,9 @@
             <div class="file-input">
                 <label>📊 ملف CSV أو Excel</label>
                 <input type="file" id="movementFile" accept=".csv,.xlsx,.xls">
-                <small>التنسيق: رقم العميل, الاسم, المبلغ (موجب=فاتورة جديدة، سالب=سداد)</small>
-                <small>مثال: 6,عبدالله المروسي,2250</small>
+                <small>يدعم تنسيقين:<br>
+                1. رقم العميل,الاسم,المبلغ<br>
+                2. رقم العميل,الاسم,الرصيد (موجب=فاتورة, سالب=سداد)</small>
             </div>
             <button class="btn btn-success" onclick="loadMovementFile()">
                 📥 تحميل الحركة اليومية
@@ -95,7 +94,7 @@
             </div>
         </div>
         
-        <div class="footer">نظام مرسل الديون | صيدلية العابد v14.0</div>
+        <div class="footer">نظام مرسل الديون | صيدلية العابد v15.0</div>
     </div>
 
     <script>
@@ -128,29 +127,62 @@
             reader.onload = function(e) {
                 const text = e.target.result;
                 const lines = text.split('\n');
-                const movements = new Map(); // customerId -> { debt, paid, name }
+                const movements = new Map();
                 
-                for (let i = 1; i < lines.length; i++) {
+                console.log("قراءة الملف:", lines.length, "سطر");
+                
+                for (let i = 0; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
                     
-                    const parts = line.split(',');
-                    if (parts.length >= 3) {
-                        const id = parseInt(parts[0]);
-                        const name = parts[1].trim();
-                        const amount = parseFloat(parts[2]);
-                        
-                        if (!isNaN(amount) && !isNaN(id)) {
-                            let debt = 0, paid = 0;
-                            if (amount > 0) debt = amount;
-                            else if (amount < 0) paid = Math.abs(amount);
-                            
-                            movements.set(id, {
-                                debt: debt,
-                                paid: paid,
-                                name: name
-                            });
+                    // تجربة تنسيقات مختلفة
+                    let parts = line.split(',');
+                    if (parts.length < 3) {
+                        // حاول التقسيم بالتبويب
+                        parts = line.split(/\t/);
+                    }
+                    
+                    console.log("سطر", i, ":", parts);
+                    
+                    // البحث عن الأرقام في السطر
+                    let id = null;
+                    let name = "";
+                    let amount = null;
+                    
+                    for (let j = 0; j < parts.length; j++) {
+                        const part = parts[j].trim();
+                        // محاولة استخراج رقم العميل
+                        if (!id && /^\d+$/.test(part)) {
+                            id = parseInt(part);
                         }
+                        // محاولة استخراج الاسم (يحتوي على أحرف عربية)
+                        else if (!name && /[أ-ي]/.test(part)) {
+                            name = part;
+                        }
+                        // محاولة استخراج المبلغ (رقم مع احتمال علامة -)
+                        else if (amount === null && /^-?\d+(\.\d+)?$/.test(part.replace(/,/g, ''))) {
+                            amount = parseFloat(part.replace(/,/g, ''));
+                        }
+                    }
+                    
+                    // إذا لم نجد البيانات، جرب أن السطر كله يحتوي على الأرقام فقط
+                    if (id === null && parts.length >= 3) {
+                        id = parseInt(parts[0]);
+                        name = parts[1];
+                        amount = parseFloat(parts[2]);
+                    }
+                    
+                    if (id && !isNaN(amount) && id > 0 && id < 1000) {
+                        let debt = 0, paid = 0;
+                        if (amount > 0) debt = amount;
+                        else if (amount < 0) paid = Math.abs(amount);
+                        
+                        movements.set(id, {
+                            debt: debt,
+                            paid: paid,
+                            name: name
+                        });
+                        console.log("تم استخراج:", id, name, amount);
                     }
                 }
                 
@@ -175,7 +207,11 @@
                 
                 saveCustomers();
                 renderCustomersList();
-                document.getElementById('movementStatus').innerHTML = `<div class="success-msg">✅ تم تحميل ${movements.size} حركة يومية</div>`;
+                
+                const msg = movements.size > 0 
+                    ? `✅ تم تحميل ${movements.size} حركة يومية` 
+                    : `⚠️ لم يتم العثور على بيانات في الملف. تأكد من التنسيق: رقم العميل,الاسم,المبلغ`;
+                document.getElementById('movementStatus').innerHTML = `<div class="success-msg">${msg}</div>`;
                 setTimeout(() => document.getElementById('movementStatus').innerHTML = '', 3000);
             };
             reader.readAsText(file, 'UTF-8');
@@ -208,29 +244,37 @@
                 const balances = new Map();
                 
                 for (let line of lines) {
-                    // البحث عن رقم العميل
+                    // البحث عن رقم العميل (رقم من 1 إلى 999)
                     const idMatch = line.match(/\b([1-9][0-9]{0,2})\b/);
                     if (!idMatch) continue;
                     const customerId = parseInt(idMatch[1]);
                     if (customerId < 1 || customerId > 999) continue;
                     
                     // البحث عن اسم عربي
-                    const nameMatch = line.match(/[أ-ي][أ-ي\s]{2,20}[أ-ي]/);
+                    const nameMatch = line.match(/[أ-ي][أ-ي\s]{2,30}[أ-ي]/);
                     const customerName = nameMatch ? nameMatch[0].trim() : "";
                     
-                    // استخراج الأرقام
+                    // استخراج جميع الأرقام (مبالغ كبيرة)
                     const numbers = [];
                     const regex = /(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)/g;
                     let match;
                     while ((match = regex.exec(line)) !== null) {
                         const num = parseFloat(match[0].replace(/,/g, ''));
-                        if (!isNaN(num) && num > 0 && num < 10000000) numbers.push(num);
+                        if (!isNaN(num) && num > 100 && num < 10000000) numbers.push(num);
                     }
                     
-                    // الرصيد هو آخر رقم في السطر
-                    if (numbers.length > 0) {
-                        const balance = numbers[numbers.length - 1];
-                        if (balance > 0) {
+                    // الرصيد هو آخر رقم كبير في السطر
+                    let balance = 0;
+                    if (numbers.length === 3) {
+                        balance = numbers[2]; // المدين, الدائن, الرصيد
+                    } else if (numbers.length === 2) {
+                        balance = numbers[1]; // المدين, الرصيد
+                    } else if (numbers.length === 1) {
+                        balance = numbers[0];
+                    }
+                    
+                    if (balance > 0 && customerId && (customerName || balance > 0)) {
+                        if (!balances.has(customerId) || balances.get(customerId).balance < balance) {
                             balances.set(customerId, { balance, name: customerName });
                         }
                     }
@@ -267,13 +311,13 @@
         // ========== الدوال الأساسية ==========
         
         function saveCustomers() {
-            localStorage.setItem('alabed_final_v14', JSON.stringify(customers));
+            localStorage.setItem('alabed_final_v15', JSON.stringify(customers));
         }
 
         function clearAllData() {
             if (confirm('⚠️ حذف جميع البيانات؟')) {
                 customers = [];
-                localStorage.removeItem('alabed_final_v14');
+                localStorage.removeItem('alabed_final_v15');
                 renderCustomersList();
                 alert('✅ تم الحذف');
             }
@@ -453,15 +497,15 @@
                     <tr style="${hasMovement ? 'background: #fff8e1;' : ''}">
                         <td>${c.id}</td>
                         <td style="text-align: right;"><strong>${c.name}</strong></td>
-                        <td><input type="text" id="phone_${i}" value="${c.phone}" placeholder="رقم الجوال" style="width: 100px; padding: 5px; text-align: center;"></td>
+                        <td><input type="text" id="phone_${i}" value="${c.phone}" placeholder="رقم الجوال" style="width: 100px; padding: 5px; text-align: center; class="small-input"></td>
                         <td style="color: #2b8c5e; font-weight: bold;">${c.totalDebt.toLocaleString()}</td>
-                        <td><input type="number" id="debt_${i}" value="${c.debt}" placeholder="0" step="any" style="width: 80px; padding: 5px; text-align: center; border-color: #e74c3c;"></td>
-                        <td><input type="number" id="paid_${i}" value="${c.paid}" placeholder="0" step="any" style="width: 80px; padding: 5px; text-align: center; border-color: #27ae60;"></td>
+                        <td><input type="number" id="debt_${i}" value="${c.debt}" placeholder="0" step="any" style="width: 80px; padding: 5px; text-align: center; border-color: #e74c3c;" class="small-input"></td>
+                        <td><input type="number" id="paid_${i}" value="${c.paid}" placeholder="0" step="any" style="width: 80px; padding: 5px; text-align: center; border-color: #27ae60;" class="small-input"></td>
                         <td>
-                            <button onclick="updateCustomer(${i})" style="background:#17a2b8; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;">💾</button>
-                            <button onclick="sendToWhatsApp(${i})" style="background:#25D366; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;">📱</button>
-                            <button onclick="sendToSMS(${i})" style="background:#2196F3; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;">✉️</button>
-                            <button onclick="deleteCustomer(${i})" style="background:#dc3545; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;">🗑️</button>
+                            <button onclick="updateCustomer(${i})" style="background:#17a2b8; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;" title="تحديث">💾</button>
+                            <button onclick="sendToWhatsApp(${i})" style="background:#25D366; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;" title="واتساب">📱</button>
+                            <button onclick="sendToSMS(${i})" style="background:#2196F3; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;" title="رسالة">✉️</button>
+                            <button onclick="deleteCustomer(${i})" style="background:#dc3545; color:white; border:none; padding:5px 8px; border-radius:5px; margin:2px;" title="حذف">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -472,7 +516,7 @@
         }
 
         // تحميل البيانات المحفوظة
-        const saved = localStorage.getItem('alabed_final_v14');
+        const saved = localStorage.getItem('alabed_final_v15');
         if (saved) {
             customers = JSON.parse(saved);
             renderCustomersList();
