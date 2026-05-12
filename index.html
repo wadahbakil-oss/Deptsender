@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2196F3">
     <title>مرسل الديون - صيدلية العابد</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%); min-height: 100vh; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e5799 0%, #2b8c5e 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 20px; }
         .header h1 { font-size: 28px; }
+        .header p { font-size: 14px; opacity: 0.9; }
         .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .card-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #1e5799; border-bottom: 3px solid #2b8c5e; padding-bottom: 10px; }
-        .search-box { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; }
+        .search-box { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; }
+        .search-box input:focus { outline: none; border-color: #2b8c5e; }
         .search-box button { padding: 12px 25px; background: #2b8c5e; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .stats { background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: bold; }
         .import-area { background: #f0f8ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px dashed #2b8c5e; text-align: center; }
-        .import-area button { background: #FF9800; padding: 10px 25px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .import-area input { margin: 10px 0; }
+        .import-area button { background: #FF9800; padding: 10px 25px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
         .table-wrapper { overflow-x: auto; max-height: 550px; overflow-y: auto; border-radius: 12px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: #1e5799; color: white; padding: 12px 8px; position: sticky; top: 0; }
+        th { background: #1e5799; color: white; padding: 12px 8px; position: sticky; top: 0; z-index: 10; }
         td { padding: 8px; text-align: center; border-bottom: 1px solid #e0e0e0; }
-        input.small-input { width: 90px; padding: 6px; text-align: center; border-radius: 8px; border: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        input.small-input { width: 90px; padding: 6px 8px; text-align: center; border-radius: 8px; border: 1px solid #ddd; }
         .btn { padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; margin: 2px; }
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-sms { background: #2196F3; color: white; }
         .btn-update { background: #17a2b8; color: white; }
+        .footer { text-align: center; margin-top: 20px; color: white; font-size: 11px; opacity: 0.7; }
         .info-note { background: #FFF3E0; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 12px; color: #E65100; text-align: center; }
         .highlight { background: #fff8e1; }
         .success-msg { background: #d4edda; color: #155724; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; }
+        .error-msg { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; }
         @media (max-width: 1000px) {
             .small-input { width: 65px; font-size: 10px; }
             .btn { padding: 3px 6px; font-size: 10px; }
@@ -48,8 +57,9 @@
             <div class="import-area">
                 <p>📊 قم برفع ملف CSV يحتوي على: <strong>رقم العميل, الرصيد</strong></p>
                 <p style="font-size: 12px; color: #666;">مثال: <code>6,435340.07</code></p>
+                <p style="font-size: 12px; color: #e74c3c;">⚠️ تحذير: استيراد ملف جديد سيحذف جميع الأرصدة السابقة ويستبدلها</p>
                 <input type="file" id="excelFile" accept=".csv">
-                <button onclick="importBalances()">📥 استيراد وتحديث الأرصدة</button>
+                <button class="btn-import" onclick="importBalances()">📥 استيراد وتحديث الأرصدة (استبدال كامل)</button>
                 <div id="importStatus"></div>
             </div>
         </div>
@@ -61,17 +71,19 @@
                 <input type="text" id="searchName" placeholder="بحث باسم العميل" onkeyup="searchCustomer()">
                 <button onclick="clearSearch()">🗑️ مسح البحث</button>
             </div>
+            <div class="stats" id="stats"></div>
         </div>
         
         <div class="card">
             <div class="card-title">👥 العملاء والحركة اليومية</div>
             <div class="table-wrapper">
-                <div id="customersTable">⏳ جاري تحميل العملاء...</div>
+                <div id="customersTable"></div>
             </div>
             <div class="info-note">
                 <strong>📌 تعليمات الاستخدام:</strong><br>
                 • <strong>فاتورة جديدة (+)</strong> = تزيد الرصيد | <strong>سداد (-)</strong> = تقلل الرصيد<br>
-                • <strong>رسالة تذكير</strong>: يمكن إرسالها حتى لو لم توجد حركة يومية
+                • <strong>رسالة تذكير</strong>: يمكن إرسالها حتى لو لم توجد حركة يومية<br>
+                • استيراد ملف جديد <strong>يحذف الأرصدة القديمة</strong> ويضع الجديدة
             </div>
         </div>
         
@@ -79,32 +91,154 @@
     </div>
 
     <script>
-        let customers = [];
+        // ========================================
+        // العملاء (مضمنون مباشرة في الكود)
+        // ========================================
+        
+        let customers = [
+            { id: 3, name: "فيصل الوصابي", phone: "739453052", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 4, name: "ادم احمد العده", phone: "772381292", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 6, name: "عبدالله المروسي", phone: "711258371", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 7, name: "عيادة الرضوان", phone: "738888215", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 12, name: "عبدالله الحكيمي", phone: "735574604", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 13, name: "السلطان", phone: "771868081", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 14, name: "نصر الوصابي", phone: "737897186", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 15, name: "نادر طاهر", phone: "777785333", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 16, name: "هارون الشيخ", phone: "738884492", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 18, name: "جميل العاقل", phone: "737336483", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 20, name: "امين البعداني", phone: "733717706", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 22, name: "عبدالسلام المهاجري", phone: "774745171", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 23, name: "زيد المقوت", phone: "772584917", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 26, name: "انور القدسي", phone: "773504270", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 27, name: "ياسر العزب", phone: "771750831", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 28, name: "ياسر العامري", phone: "777836168", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 29, name: "محمد العزب", phone: "770876440", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 31, name: "محمد الوصابي", phone: "770757770", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 32, name: "منير البقالة", phone: "770227580", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 34, name: "صالح الزماني", phone: "774243124", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 35, name: "محمد صبحي", phone: "733778860", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 37, name: "سامي الابيض خ", phone: "730113577", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 51, name: "ناصر العتمي", phone: "736379838", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 53, name: "توفيق الطلي", phone: "711996552", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 54, name: "امين قاسم عبدة", phone: "717176722", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 55, name: "زكي الخياط", phone: "735776164", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 60, name: "هاني الاثوري", phone: "775867943", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 61, name: "منير الحميري", phone: "734200897", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 63, name: "وليد الزماني", phone: "777614827", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 65, name: "فهمي العريقي الخياط", phone: "735430363", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 67, name: "مويد بيت طاهر", phone: "775389495", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 68, name: "ام التوم", phone: "779660862", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 69, name: "حسن ابو صلاح", phone: "770012927", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 70, name: "محمد الشيخ", phone: "770739977", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 71, name: "عفيف بشر", phone: "774452030", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 77, name: "محمد فؤاد", phone: "775035629", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 79, name: "رضون صادق", phone: "772993070", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 84, name: "نصر باحميدو", phone: "770012252", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 85, name: "طارق عبده محمد", phone: "773235160", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 87, name: "نبيل البهارات", phone: "773843451", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 88, name: "صيدلية الفتح", phone: "777112688", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 92, name: "كمال الاصبحي", phone: "771550356", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 93, name: "عبدالله شيبان", phone: "777458368", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 96, name: "كارم القباطي", phone: "777519234", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 97, name: "مروان الغرباني", phone: "775935667", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 105, name: "صيدلية الباشا", phone: "733227781", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 108, name: "عم الدكتور مختار", phone: "777165316", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 109, name: "بسام الشرماني", phone: "772646060", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 110, name: "حسن الطباخ", phone: "770370211", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 111, name: "صيدليه طربوش", phone: "738353799", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 112, name: "ياسين الصبري", phone: "775621971", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 113, name: "ع سليم ميثاق", phone: "737452036", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 114, name: "ام شادي", phone: "713527337", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 115, name: "هشام الحكيمي", phone: "770464506", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 120, name: "محمد القرمي", phone: "770994084", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 121, name: "ع محمد صادق العريقي", phone: "780002329", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 122, name: "ام محمد الرضا", phone: "773399436", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 123, name: "مروان صادق", phone: "735541156", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 124, name: "عبدالله صادق", phone: "773253822", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 130, name: "محمد الاغبري الوكلاء", phone: "778088898", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 132, name: "عزالدين عبده", phone: "773839442", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 133, name: "خلدون الصبري", phone: "771119256", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 136, name: "وضاح السامعي", phone: "739926811", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 137, name: "وضاح سعيد ص وضاح", phone: "735783162", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 143, name: "امين الوصابي", phone: "775942042", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 146, name: "لطف محمد قاسم", phone: "777206743", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 147, name: "بيشر قايد", phone: "715424089", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 148, name: "الدكتورة ريما", phone: "739351980", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 149, name: "علي عبدالله عثمان", phone: "772768452", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 153, name: "ليلي مخارش", phone: "734884921", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 156, name: "ام مريا", phone: "730427792", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 158, name: "عمران مهيبوب", phone: "775528278", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 160, name: "عفاف العريقي", phone: "775513997", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 161, name: "مصطفى خال الدكتور", phone: "735131246", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 167, name: "منيف القباطي", phone: "771874575", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 170, name: "يحي الزبيري", phone: "774733512", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 171, name: "فواد حسان", phone: "735533992", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 178, name: "بنت القباطي", phone: "772575306", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 179, name: "جلال العتابي", phone: "716443677", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 181, name: "روف العبسي", phone: "770455282", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 182, name: "عمار الكبودي", phone: "739047810", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 183, name: "منصر فني اسنان", phone: "739504319", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 186, name: "عبداللطيف فرحان", phone: "777626191", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 188, name: "جوهلر الجعيدي", phone: "779659909", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 189, name: "جمال ناجي", phone: "778080370", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 191, name: "محمد عبدة صالح", phone: "774365858", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 195, name: "محمد الكهربائي", phone: "777451544", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 205, name: "عبدالشيخ", phone: "770068713", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 208, name: "جمال جسار", phone: "777942648", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 210, name: "ام ابراهيم الوصابي", phone: "770843608", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 211, name: "نجيب الصامت", phone: "772629955", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 214, name: "نبيل الطباخ", phone: "773743060", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 215, name: "عبدة غالب العتابي", phone: "777265467", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 221, name: "بدر الجنيد", phone: "734738162", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 225, name: "عبدالحكيم الشرعبي", phone: "774390850", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 228, name: "ام براءه", phone: "735718544", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 230, name: "غازي الشرفي", phone: "778072948", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 231, name: "مختار البوالط", phone: "777404047", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 234, name: "ماجد المقوت", phone: "774147703", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 238, name: "ايناس اخت ام ماريا", phone: "773473140", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 240, name: "اختيار سيف", phone: "730329017", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 241, name: "ام عمار", phone: "736456288", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 242, name: "محمد امين راجح", phone: "774945642", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 247, name: "عماد السامعي الطاحون", phone: "733387523", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 250, name: "صلاح الوصابي", phone: "738547672", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 252, name: "نواف الشميري", phone: "770990996", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 253, name: "يحي عبدالحكيم", phone: "774613137", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 258, name: "احمد فواد الجنتيل", phone: "774999773", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 266, name: "نائل البشيري", phone: "736394007", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 270, name: "كاظم الوكلاء", phone: "739819674", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 275, name: "انس الوافي", phone: "713719948", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 278, name: "ام عدي", phone: "739497152", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 280, name: "رضوان داوود", phone: "777087271", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 282, name: "زياد امين راجح", phone: "770454903", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 287, name: "عمي عبده صالح", phone: "771443842", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 288, name: "وضاح بكيل", phone: "774410166", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 290, name: "علي حسن القمر", phone: "711265000", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 292, name: "فكري تابع الشرعبي", phone: "777946646", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 293, name: "معاذ القمر", phone: "777051348", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 294, name: "ام قصي", phone: "776365022", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 297, name: "زكريا القباطي", phone: "738209538", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 298, name: "حبيب احمد قايد المروسي", phone: "772073336", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 299, name: "بغداد رشاد", phone: "730523120", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 300, name: "عمر القياطي السلطان", phone: "770565050", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 302, name: "الزوقري", phone: "736734185", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 305, name: "ام محمد الاكزيما", phone: "730348090", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 306, name: "وليد محمد علي وضاح", phone: "733608583", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 307, name: "خالد الفخري", phone: "772898474", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 308, name: "اخت ام شدى", phone: "77373631", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 311, name: "ام محمد ضمانة اختيار", phone: "774923011", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 313, name: "نبيل السامعي جار د منصور", phone: "734146370", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 314, name: "محمد مختار القباطي نشوة", phone: "730208575", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 315, name: "محمد نجيب صاحب البطاط", phone: "733736264", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 316, name: "ام عبدالله شعلان", phone: "733715312", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 318, name: "صادق القباطي كهرباء", phone: "737149434", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 319, name: "بكيل سالم", phone: "735272710", debt: 0, paid: 0, totalDebt: 0 },
+            { id: 321, name: "وائل بكبل", phone: "773645345", debt: 0, paid: 0, totalDebt: 0 }
+        ];
+
         let currentSearchId = "";
         let currentSearchName = "";
 
-        // تحميل العملاء من ملف JSON
-        async function loadCustomersFromJSON() {
-            try {
-                const response = await fetch('customers.json');
-                const data = await response.json();
-                // إضافة الحقول الإضافية
-                customers = data.map(c => ({
-                    ...c,
-                    debt: 0,
-                    paid: 0,
-                    totalDebt: 0
-                }));
-                loadSavedData();
-                renderTable(customers);
-                updateStats();
-            } catch (error) {
-                document.getElementById('customersTable').innerHTML = '<div style="text-align:center; padding:40px;">❌ فشل في تحميل العملاء. تأكد من وجود ملف customers.json</div>';
-                console.error('Error loading customers:', error);
-            }
-        }
-
-        function loadSavedData() {
+        function loadData() {
             const savedMovements = localStorage.getItem('alabed_movements_final');
             const savedBalances = localStorage.getItem('alabed_balances_final');
             
@@ -128,6 +262,8 @@
                     }
                 });
             }
+            
+            applySearchAndRender();
         }
 
         function saveMovements() {
@@ -155,6 +291,9 @@
                 const text = e.target.result;
                 const lines = text.split('\n');
                 
+                // حذف جميع الأرصدة الحالية
+                customers.forEach(c => { c.totalDebt = 0; });
+                
                 let imported = 0;
                 let errors = 0;
                 
@@ -163,13 +302,26 @@
                     if (!line) continue;
                     if (line.includes('رقم') || line.includes('العميل')) continue;
                     
-                    const parts = line.split(',');
+                    let parts = line.split(/[ ,\t]+/);
                     if (parts.length < 2) continue;
                     
-                    const id = parseInt(parts[0]);
-                    const balance = parseFloat(parts[1]);
+                    let id = null;
+                    let balance = null;
                     
-                    if (!isNaN(id) && !isNaN(balance)) {
+                    for (let p of parts) {
+                        let cleanNum = p.replace(/,/g, '').replace(/[()]/g, '').trim();
+                        let num = parseFloat(cleanNum);
+                        
+                        if (!isNaN(num) && num !== 0) {
+                            if (Number.isInteger(num) && num < 1000 && num > 0) {
+                                if (id === null) id = num;
+                            } else if (balance === null) {
+                                balance = num;
+                            }
+                        }
+                    }
+                    
+                    if (id !== null && balance !== null) {
                         const customer = customers.find(c => c.id === id);
                         if (customer) {
                             customer.totalDebt = balance;
@@ -182,23 +334,15 @@
                 
                 if (imported > 0) {
                     saveBalances();
-                    renderTable(getFilteredCustomers());
+                    applySearchAndRender();
                     updateStats();
-                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
+                    statusDiv.innerHTML = `<div class="success-msg">✅ تم استيراد ${imported} رصيد بنجاح (تم حذف الأرصدة القديمة)${errors > 0 ? ` (${errors} رقم غير موجود)` : ''}</div>`;
                 } else {
-                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة. التنسيق المطلوب: رقم العميل, الرصيد</div>';
+                    statusDiv.innerHTML = '<div class="error-msg">❌ لم يتم العثور على بيانات صالحة. تأكد من التنسيق: رقم العميل, الرصيد</div>';
                 }
                 setTimeout(() => statusDiv.innerHTML = '', 5000);
             };
             reader.readAsText(file, 'UTF-8');
-        }
-
-        function getFilteredCustomers() {
-            return customers.filter(c => {
-                const matchId = currentSearchId === '' || c.id.toString().includes(currentSearchId);
-                const matchName = currentSearchName === '' || c.name.includes(currentSearchName);
-                return matchId && matchName;
-            });
         }
 
         function clearSearch() {
@@ -212,7 +356,16 @@
         function searchCustomer() {
             currentSearchId = document.getElementById('searchId').value.trim();
             currentSearchName = document.getElementById('searchName').value.trim();
-            renderTable(getFilteredCustomers());
+            applySearchAndRender();
+        }
+
+        function applySearchAndRender() {
+            const filtered = customers.filter(c => {
+                const matchId = currentSearchId === '' || c.id.toString().includes(currentSearchId);
+                const matchName = currentSearchName === '' || c.name.includes(currentSearchName);
+                return matchId && matchName;
+            });
+            renderTable(filtered);
         }
 
         function updateCustomer(id) {
@@ -229,7 +382,7 @@
             
             saveMovements();
             saveBalances();
-            renderTable(getFilteredCustomers());
+            applySearchAndRender();
             updateStats();
             alert(`✅ تم تحديث ${customer.name}`);
         }
@@ -254,6 +407,7 @@
             } else if (customer.paid > 0) {
                 text = `تم استلام مبلغ ${customer.paid.toLocaleString()} ريال (سداد)`;
             }
+            
             return `الاخ ${customer.name}، نود اعلامكم بان ${text} ليصبح اجمالي الرصيد عليكم ${newTotal.toLocaleString()} ريال.\n\nيرجى السداد بداية ونهاية كل شهر\n\n🏥 صيدلية العابد\nتعز - الحوبان - مدخل البريد\n📞 770066128`;
         }
 
@@ -273,6 +427,7 @@
                 updateAfterSend = true;
             } else {
                 message = createReminderMessage(customer);
+                updateAfterSend = false;
             }
             
             if (!customer.phone || customer.phone.length < 9) {
@@ -280,12 +435,13 @@
                 if (phone) customer.phone = phone.replace(/[^0-9]/g, '');
                 else return;
                 saveMovements();
+                applySearchAndRender();
             }
             
             if (updateAfterSend) {
                 saveMovements();
                 saveBalances();
-                renderTable(getFilteredCustomers());
+                applySearchAndRender();
                 updateStats();
             }
             
@@ -309,6 +465,7 @@
                 updateAfterSend = true;
             } else {
                 message = createReminderMessage(customer);
+                updateAfterSend = false;
             }
             
             if (!customer.phone || customer.phone.length < 9) {
@@ -316,12 +473,13 @@
                 if (phone) customer.phone = phone.replace(/[^0-9]/g, '');
                 else return;
                 saveMovements();
+                applySearchAndRender();
             }
             
             if (updateAfterSend) {
                 saveMovements();
                 saveBalances();
-                renderTable(getFilteredCustomers());
+                applySearchAndRender();
                 updateStats();
             }
             
@@ -331,17 +489,7 @@
 
         function updateStats() {
             const hasMovement = customers.filter(c => c.debt > 0 || c.paid > 0).length;
-            const statsDiv = document.getElementById('stats');
-            if (statsDiv) {
-                statsDiv.innerHTML = `📊 إجمالي العملاء: ${customers.length} | 🔴 حركة يومية: ${hasMovement}`;
-            } else {
-                const newStatsDiv = document.createElement('div');
-                newStatsDiv.id = 'stats';
-                newStatsDiv.className = 'stats';
-                newStatsDiv.innerHTML = `📊 إجمالي العملاء: ${customers.length} | 🔴 حركة يومية: ${hasMovement}`;
-                const searchBox = document.querySelector('.search-box');
-                searchBox.parentNode.insertBefore(newStatsDiv, searchBox.nextSibling);
-            }
+            document.getElementById('stats').innerHTML = `📊 إجمالي العملاء: ${customers.length} | 🔴 حركة يومية: ${hasMovement}`;
         }
 
         function renderTable(list) {
@@ -354,7 +502,7 @@
             }
             
             list.sort((a, b) => a.id - b.id);
-            let html = `<tr><thead><tr><th>#</th><th>العميل</th><th>الجوال</th><th>الرصيد</th><th>فاتورة+</th><th>سداد-</th><th>الرصيد بعد</th><th>إجراءات</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>#</th><th>العميل</th><th>الجوال</th><th>الرصيد</th><th>فاتورة+</th><th>سداد-</th><th>الرصيد بعد</th><th>إجراءات</th></tr></thead><tbody>`;
             for (let c of list) {
                 const newTotal = calculateNewTotal(c);
                 html += `<tr class="${c.debt > 0 || c.paid > 0 ? 'highlight' : ''}">
@@ -381,7 +529,7 @@
         window.searchCustomer = searchCustomer;
         window.importBalances = importBalances;
         
-        loadCustomersFromJSON();
+        loadData();
     </script>
 </body>
 </html>
